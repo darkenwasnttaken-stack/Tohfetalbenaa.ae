@@ -1,0 +1,822 @@
+/* ==========================================================================
+   TOHFET AL BENAA — Design System
+   Navy / Gold / Paper. Condensed display type (grounded in the company's
+   own printed identity), architectural blueprint corner-marks as the
+   recurring structural motif, edge-to-edge photography.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,300;9..144,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+:root{
+  --navy: #0b1a33;
+  --navy-2: #0f2447;
+  --navy-3: #16305c;
+  --gold: #b9924f;
+  --gold-light: #ddc389;
+  --paper: #f3f1ea;
+  --paper-2: #eae6da;
+  --ink: #12151b;
+  --ink-soft: #4b5361;
+  --white: #ffffff;
+  --line: rgba(11,26,51,0.14);
+  --line-light: rgba(255,255,255,0.18);
+
+  --font-display: 'Anton', 'Tajawal', sans-serif;
+  --font-serif: 'Fraunces', serif;
+  --font-body: 'Inter', 'Tajawal', -apple-system, sans-serif;
+
+  --container: min(92vw, 1680px);
+  --gutter: clamp(20px, 5vw, 64px);
+  --radius: 2px;
+  --ease: cubic-bezier(.22,.68,0,1);
+}
+
+html[dir="rtl"]{
+  --font-display: 'Tajawal', sans-serif;
+  --font-body: 'Tajawal', -apple-system, sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+ul{margin:0;padding:0;list-style:none;}
+h1,h2,h3,h4,p{margin:0;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+.container{max-width:var(--container);margin:0 auto;padding:0 var(--gutter);}
+
+/* focus visibility */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:3px;
+}
+
+/* ---------- Type ---------- */
+.eyebrow{
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:12.5px;
+  letter-spacing:.14em;
+  color:var(--gold);
+}
+html[dir="rtl"] .eyebrow{letter-spacing:0;}
+
+.display-1{
+  font-family:var(--font-display);
+  font-weight:400;
+  text-transform:uppercase;
+  line-height:.92;
+  letter-spacing:.005em;
+  /* Bounded by height as well as width: on a wide-but-short laptop viewport,
+     a pure vw value ignores how little vertical room is actually available
+     and the headline ends up oversized relative to the screen. min(vw,vh)
+     makes it back off on short screens the same way it already backs off
+     on narrow ones. */
+  font-size:clamp(40px, min(8.5vw, 13vh), 116px);
+}
+/* Arabic display type: Tajawal's diacritics and full-height glyphs need real
+   breathing room between lines — the condensed Latin line-heights above are
+   what caused lines to collide. This is a global rule, not a per-heading patch,
+   so it protects every current and future large heading in Arabic. */
+html[dir="rtl"] .display-1{font-weight:800; letter-spacing:0; line-height:1.42;}
+
+.display-2{
+  font-family:var(--font-display);
+  font-weight:400;
+  text-transform:uppercase;
+  line-height:.96;
+  font-size:clamp(34px, 5.4vw, 72px);
+}
+html[dir="rtl"] .display-2{font-weight:800; line-height:1.4;}
+
+.display-3{
+  font-family:var(--font-display);
+  font-weight:400;
+  text-transform:uppercase;
+  line-height:1.02;
+  font-size:clamp(26px, 3.2vw, 40px);
+}
+html[dir="rtl"] .display-3{font-weight:700; line-height:1.38;}
+
+/* Extra vertical gap between stacked hero title rows in Arabic, on top of the
+   line-height fix above — belt and braces against descender/diacritic overlap.
+   Plain block + margin (not inline-block) — kept deliberately simple since
+   RTL bidi + inline-block has a history of shaping bugs in older engines. */
+html[dir="rtl"] .hero-stack .row2{display:block;margin-top:.12em;}
+
+.serif-lead{
+  font-family:var(--font-serif);
+  font-weight:500;
+  font-style:italic;
+  line-height:1.35;
+  font-size:clamp(20px,2.4vw,29px);
+  color:var(--navy);
+}
+html[dir="rtl"] .serif-lead{font-family:var(--font-body);font-weight:500;font-style:normal;}
+
+.body-lg{font-size:18px;line-height:1.65;color:var(--ink-soft);max-width:56ch;}
+.body-md{font-size:16px;line-height:1.7;color:var(--ink-soft);max-width:60ch;}
+
+/* ---------- Blueprint corner-mark motif ---------- */
+.mark{position:relative;}
+.mark::before,.mark::after{
+  content:'';position:absolute;width:18px;height:18px;
+  border:1.5px solid currentColor;opacity:.55;
+}
+.mark::before{top:-1px;inset-inline-start:-1px;border-inline-end:0;border-bottom:0;}
+.mark::after{bottom:-1px;inset-inline-end:-1px;border-inline-start:0;border-top:0;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-weight:700;font-size:14px;letter-spacing:.03em;
+  padding:16px 30px;
+  border:1px solid transparent;
+  transition:transform .35s var(--ease), background .3s, color .3s, border-color .3s;
+  white-space:nowrap;
+}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-line{border-color:currentColor;}
+.btn-line:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.btn-line-invert{border-color:rgba(255,255,255,.55);color:#fff;}
+.btn-line-invert:hover{background:#fff;color:var(--navy);}
+.btn svg{width:15px;height:15px;flex:none;transition:transform .3s var(--ease);}
+/* Only the directional "arrow" glyph flips for RTL (it points the way you
+   read, so it should point the other way in Arabic). Brand marks and
+   recognizable logos — WhatsApp above all, but this covers every current and
+   future .btn icon — must never be mirrored just because they happen to sit
+   inside the same .btn component. A blanket ".btn svg" selector was doing
+   exactly that everywhere a WhatsApp button appears (homepage CTA band,
+   contact page, anywhere else one gets added later). */
+html[dir="rtl"] .icon-dir{transform:scaleX(-1);}
+.btn:hover .icon-dir{transform:translateX(4px);}
+html[dir="rtl"] .btn:hover .icon-dir{transform:scaleX(-1) translateX(4px);}
+
+/* ---------- Nav ---------- */
+.site-header{
+  position:fixed;inset-inline:0;top:0;z-index:100;
+  padding:18px var(--gutter);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .4s, padding .4s, border-color .4s;
+  border-bottom:1px solid transparent;
+}
+.site-header.solid{
+  background:rgba(11,26,51,.94);
+  backdrop-filter:blur(10px);
+  padding-block:12px;
+  border-color:rgba(255,255,255,.08);
+}
+.brand{display:flex;align-items:center;gap:16px;color:#fff;transition:opacity .3s;}
+.brand:hover{opacity:.85;}
+.brand img{height:68px;width:68px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));transition:transform .4s var(--ease), height .35s var(--ease), width .35s var(--ease);}
+.brand:hover img{transform:scale(1.05);}
+.brand-word{font-family:var(--font-display);font-size:24px;letter-spacing:.03em;line-height:1;}
+html[dir="rtl"] .brand-word{font-weight:800;font-size:22px;}
+.brand-word small{display:block;font-family:var(--font-body);font-weight:600;font-size:10px;letter-spacing:.18em;color:var(--gold-light);margin-top:6px;text-transform:uppercase;}
+html[dir="rtl"] .brand-word small{letter-spacing:0;}
+.site-header{gap:20px;padding-block:14px;}
+.site-header.solid{padding-block:10px;}
+.site-header.solid .brand img{height:52px;width:52px;}
+/* On a phone, the logo, full company name, subtitle, language switcher, and
+   hamburger icon are all competing for one row — the subtitle in particular
+   ("Contracting & General Maintenance") is long enough that it was wrapping
+   to three cramped lines once the language switcher (added to this row
+   separately) took up its own space. Dropped the subtitle here rather than
+   let it keep fighting for room; the full name plus logo is still a clear,
+   complete brand mark on its own, and the subtitle is one click away on the
+   About page. Logo and name are sized down a step too, matching the overall
+   phone-density pass elsewhere on the site. */
+@media(max-width:640px){
+  .brand{gap:10px;}
+  .brand img{height:42px;width:42px;}
+  .brand-word{font-size:15px;}
+  html[dir="rtl"] .brand-word{font-size:14px;}
+  .brand-word small{display:none;}
+}
+
+.nav-desktop{display:flex;align-items:center;gap:36px;}
+.nav-links{display:flex;gap:30px;}
+.nav-links a{color:#eef0f4;font-size:14.5px;font-weight:600;position:relative;padding:6px 0;}
+.nav-links a::after{content:'';position:absolute;bottom:0;inset-inline:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);}
+html[dir="rtl"] .nav-links a::after{transform-origin:right;}
+.nav-links a:hover::after,.nav-links a[aria-current="page"]::after{transform:scaleX(1);}
+.lang-switch{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#fff;}
+.lang-switch a{padding:5px 9px;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.65);}
+/* This instance sits directly in the always-visible header bar on mobile,
+   next to the hamburger icon — the switcher was otherwise only reachable
+   by opening the menu first, which isn't an obvious first move for
+   everyone, especially a visitor less familiar with hamburger-menu
+   conventions. Hidden here on desktop since the full nav already shows its
+   own copy of this same switcher. */
+.lang-switch-header-mobile{display:none;}
+.lang-switch a.active{color:var(--navy);background:var(--gold-light);border-color:var(--gold-light);}
+.nav-cta{margin-inline-start:6px;}
+.nav-toggle{display:none;background:none;border:0;width:38px;height:30px;position:relative;}
+.nav-toggle span{position:absolute;inset-inline:0;height:2px;background:#fff;transition:.35s var(--ease);}
+.nav-toggle span:nth-child(1){top:2px;}
+.nav-toggle span:nth-child(2){top:14px;}
+.nav-toggle span:nth-child(3){top:26px;}
+.nav-toggle.open span:nth-child(1){transform:translateY(12px) rotate(45deg);}
+.nav-toggle.open span:nth-child(2){opacity:0;}
+.nav-toggle.open span:nth-child(3){transform:translateY(-12px) rotate(-45deg);}
+
+.mobile-panel{
+  position:fixed;inset:0;z-index:99;background:var(--navy);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:100px var(--gutter) 40px;
+  transform:translateY(-100%);transition:transform .5s var(--ease);
+}
+.mobile-panel.open{transform:translateY(0);}
+.mobile-panel a{display:block;color:#fff;font-family:var(--font-display);font-size:34px;text-transform:uppercase;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.12);}
+html[dir="rtl"] .mobile-panel a{font-weight:800;}
+.mobile-panel .lang-switch{margin-top:26px;}
+
+/* ---------- Hero (signature moment) ----------
+   Layered composition: navy base -> duotone architectural photo -> animated
+   blueprint grid that draws itself in once on load -> slow, near-imperceptible
+   Ken Burns drift on the photo for the life of the page. Nothing here reacts
+   to scroll; the scroll-reveal system elsewhere is untouched. */
+.hero{
+  position:relative;
+  /* box-sizing:content-box (overriding the site-wide border-box default) is
+     deliberate here: it lets padding-top add a guaranteed, unshrinkable gap
+     above the flex content area, reserved for the fixed header to sit in.
+     With border-box, that same padding would have EATEN INTO the content
+     area instead of adding above it — which is what let Arabic's taller
+     line-height (needed to stop diacritics colliding, see .display-1) push
+     the hero-kicker text up underneath the header. This reserves the space
+     structurally, for any content height, in either language. The content
+     min-height is reduced by the same clearance amount so the hero's total
+     rendered height still matches the original target instead of growing
+     taller than the viewport. */
+  box-sizing:content-box;
+  padding-top:clamp(104px, 13vh, 132px);
+  min-height:calc(100vh - clamp(104px, 13vh, 132px));
+  min-height:calc(clamp(560px, 84vh, 820px) - clamp(104px, 13vh, 132px));
+  display:flex;flex-direction:column;justify-content:flex-end;
+  background:var(--navy);color:#fff;overflow:hidden;
+}
+/* On a phone, forcing this box to fill the entire (tall) viewport height
+   left a large dead gap above the text, since the content itself (headline
+   + description + two buttons) is nowhere near that tall — the same root
+   cause as the .page-hero fix above, and fixed the same way: below tablet
+   width, this box goes back to being exactly as tall as its own content
+   needs, on top of the same reserved header clearance (still kept, so
+   Arabic — whose content is naturally a bit taller — is never at risk of
+   sliding under the header; it simply has less unused space below the
+   header and above its own text, in either language, because there's
+   nothing artificially stretching the box past what the content needs). */
+@media(max-width:860px){
+  .hero{min-height:0;}
+}
+.hero-bg{position:absolute;inset:0;}
+.hero-photo-wrap{position:absolute;inset:0;overflow:hidden;}
+.hero-photo-wrap img{
+  width:100%;height:100%;object-fit:cover;object-position:62% 32%;
+  opacity:.68;transform:scale(1.08);
+  animation:heroDrift 32s ease-in-out infinite alternate;
+}
+@keyframes heroDrift{
+  0%{transform:scale(1.08) translate3d(0,0,0);}
+  100%{transform:scale(1.16) translate3d(-1.4%,-1.2%,0);}
+}
+.hero-bg::after{content:'';position:absolute;inset:0;
+  background:
+    linear-gradient(100deg, rgba(11,26,51,.98) 0%, rgba(11,26,51,.75) 30%, rgba(11,26,51,.28) 58%, rgba(11,26,51,.55) 100%),
+    linear-gradient(180deg,rgba(11,26,51,.15) 0%,rgba(11,26,51,.3) 55%,rgba(8,17,33,.98) 100%);
+}
+html[dir="rtl"] .hero-bg::after{
+  background:
+    linear-gradient(260deg, rgba(11,26,51,.98) 0%, rgba(11,26,51,.75) 30%, rgba(11,26,51,.28) 58%, rgba(11,26,51,.55) 100%),
+    linear-gradient(180deg,rgba(11,26,51,.15) 0%,rgba(11,26,51,.3) 55%,rgba(8,17,33,.98) 100%);
+}
+/* The diagonal gradient above is tuned for desktop, where the text column
+   only occupies roughly the left half of a wide frame and the diagonal
+   fade covers exactly that. On a phone the same text spans the full width,
+   so the end of each line was sitting over the gradient's more transparent
+   side — weaker contrast right where words like "2002" or "100+" land.
+   A plain top-aligned darkening reads more evenly across the whole width
+   instead, regardless of language/direction (it isn't a directional
+   gradient, so it needs no separate RTL version). */
+@media(max-width:640px){
+  .hero-bg::after,html[dir="rtl"] .hero-bg::after{
+    background:linear-gradient(180deg, rgba(8,17,33,.35) 0%, rgba(8,17,33,.55) 35%, rgba(8,17,33,.88) 68%, rgba(8,17,33,.97) 100%);
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-photo-wrap img{animation:none;transform:scale(1.08);}
+}
+
+.hero-inner{position:relative;z-index:2;padding:0 var(--gutter) clamp(28px,5vh,56px);width:100%;}
+.hero-kicker{display:flex;align-items:center;gap:14px;margin-bottom:clamp(12px,2.5vh,22px);}
+.hero-kicker .line{width:46px;height:1px;background:var(--gold);}
+.hero-stack{margin:0;max-width:min(760px,86%);}
+.hero-stack .row1{display:block;color:#fff;}
+.hero-stack .row2{display:block;color:var(--gold-light);}
+.hero-sub{display:flex;flex-wrap:wrap;gap:20px 48px;align-items:flex-end;justify-content:space-between;margin-top:clamp(18px,3.5vh,34px);padding-top:clamp(16px,3vh,30px);border-top:1px solid rgba(255,255,255,.16);}
+.hero-name{max-width:480px;}
+.hero-name p{color:rgba(255,255,255,.72);font-size:14.5px;text-shadow:0 1px 4px rgba(0,0,0,.5);}
+/* On a phone, this whole block (kicker, headline, divider, description) was
+   using the same tight rhythm as everything else on the "reduce scrolling"
+   pass — reasonable for routine content, but this is the very first thing
+   anyone sees, and packed that tight against a busy photo background it
+   read as cramped rather than composed. Given a little more room to breathe
+   here specifically, plus a text-shadow on the description so it stays
+   crisp regardless of what part of the photo happens to sit behind it. */
+@media(max-width:640px){
+  .hero-kicker{margin-bottom:20px;justify-content:center;}
+  .hero-sub{margin-top:28px;padding-top:22px;gap:22px 32px;}
+  .hero-name p{line-height:1.6;}
+  /* Centering the whole block together (kicker, headline, divider,
+     description) rather than only the headline — a centered headline
+     sitting above left-aligned text below it would look like two different
+     layouts stacked on top of each other instead of one composed hero. */
+  .hero-inner{text-align:center;}
+  .hero-stack{margin-inline:auto;}
+  .hero-sub{flex-direction:column;align-items:center;}
+  .hero-name{margin-inline:auto;}
+}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
+/* On phones, two buttons that each wrap to their own full-width row eat a
+   surprising amount of vertical space for what they are — a "resized
+   desktop" feel rather than something actually laid out for a small screen.
+   Sitting them side by side, sharing the row evenly, reads as more
+   deliberately designed for mobile and saves a real chunk of scroll height. */
+@media(max-width:640px){
+  .hero-actions{flex-wrap:nowrap;gap:10px;}
+  .hero-actions .btn{flex:1;justify-content:center;padding-inline:14px;font-size:13px;white-space:nowrap;}
+}
+
+/* Scroll cue lives in normal flow, centered below the CTA row — it can never
+   overlap the buttons at any viewport because it simply adds its own space
+   beneath them rather than sitting on top of anything. */
+.scroll-cue{
+  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;
+  color:rgba(255,255,255,.55);font-size:11px;letter-spacing:.16em;
+  margin:38px auto 0;width:fit-content;
+}
+.scroll-cue .stick{width:1px;height:34px;background:rgba(255,255,255,.3);position:relative;overflow:hidden;}
+.scroll-cue .stick::after{content:'';position:absolute;top:-100%;inset-inline:0;height:100%;background:var(--gold);animation:cue 1.8s infinite;}
+@keyframes cue{to{top:100%;}}
+@media(max-width:640px){.scroll-cue{display:none;}}
+
+/* ---------- Section rhythm ---------- */
+.section{padding:112px 0;position:relative;}
+.section-tight{padding:80px 0;}
+.section-navy{background:var(--navy);color:#fff;}
+.section-paper2{background:var(--paper-2);}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px;flex-wrap:wrap;}
+/* A single centered statement (eyebrow + heading + one paragraph, nothing
+   beside it) — for sections that used to sit in a two-column .section-head
+   next to something else that's since been removed, where the leftover
+   single column just looked stranded on one side with empty space next to it. */
+.statement-center{text-align:center;max-width:1200px;margin:0 auto 56px;}
+.statement-center .body-md{margin:22px auto 0;max-width:640px;font-size:18.5px;line-height:1.75;}
+.section-head .r{max-width:420px;}
+
+/* reveal-on-scroll */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease), transform .9s var(--ease);}
+.reveal.in{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+
+/* ---------- 2002 brand moment ---------- */
+.legacy{
+  position:relative;background:var(--navy);color:#fff;padding:150px 0 130px;
+  overflow:hidden;
+}
+.legacy-years{
+  display:flex;align-items:center;justify-content:center;gap:clamp(14px,4vw,64px);
+  font-family:var(--font-display);color:rgba(255,255,255,.9);
+  font-size:clamp(56px, 12.5vw, 176px);line-height:1;
+  text-align:center;flex-wrap:nowrap;
+}
+html[dir="rtl"] .legacy-years{font-weight:800;direction:ltr;}
+.legacy-years .arrow{font-size:clamp(28px,4vw,60px);color:var(--gold);transform:translateY(-6px);}
+.legacy-years .to{
+  font-family:var(--font-serif);font-style:italic;font-weight:500;color:var(--gold-light);
+  font-size:clamp(28px,6vw,80px);
+}
+.legacy-caption{text-align:center;margin-top:34px;color:rgba(255,255,255,.62);font-size:15px;letter-spacing:.05em;}
+.legacy-stats{margin-top:80px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.14);}
+.legacy-stat{padding:34px 22px 0;border-inline-start:1px solid rgba(255,255,255,.14);text-align:center;}
+.legacy-stat:first-child{border-inline-start:0;}
+.legacy-stat .num{font-family:var(--font-display);font-size:clamp(34px,4vw,58px);color:var(--gold-light);line-height:1;}
+html[dir="rtl"] .legacy-stat .num{font-weight:800;}
+.legacy-stat .lbl{margin-top:10px;font-size:13px;color:rgba(255,255,255,.6);}
+
+/* ---------- Services showcase (dominant, one-at-a-time feel) ---------- */
+.svc-row{
+  display:grid;grid-template-columns:1fr 1fr;align-items:stretch;
+  border-top:1px solid var(--line);
+}
+.svc-row:last-child{border-bottom:1px solid var(--line);}
+.svc-media{position:relative;overflow:hidden;min-height:360px;}
+.svc-media img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease);}
+.svc-row:hover .svc-media img{transform:scale(1.045);}
+.svc-copy{padding:54px var(--gutter);display:flex;flex-direction:column;justify-content:center;}
+.svc-index{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--gold);margin-bottom:14px;}
+html[dir="rtl"] .svc-index{font-family:var(--font-body);font-weight:700;font-style:normal;}
+.svc-copy h3{margin-bottom:16px;}
+.svc-row:nth-child(even){direction:rtl;}
+.svc-row:nth-child(even) .svc-copy{direction:ltr;}
+html[dir="rtl"] .svc-row:nth-child(even){direction:ltr;}
+html[dir="rtl"] .svc-row:nth-child(even) .svc-copy{direction:rtl;}
+
+/* ---------- Credentials strip ---------- */
+.cred-grid{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);}
+.cred-cell{padding:32px 22px;border-inline-start:1px solid var(--line);position:relative;}
+.cred-cell:first-child{border-inline-start:0;}
+.cred-cell .k{font-size:11.5px;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:10px;}
+html[dir="rtl"] .cred-cell .k{letter-spacing:0;}
+.cred-cell .v{font-family:var(--font-display);font-size:22px;color:var(--navy);line-height:1.15;}
+html[dir="rtl"] .cred-cell .v{font-weight:800;font-size:19px;}
+.cred-cell .v small{display:block;font-family:var(--font-body);font-weight:600;font-size:12px;color:var(--ink-soft);margin-top:5px;}
+
+/* ---------- Projects grid ---------- */
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);}
+.proj-card{position:relative;background:var(--navy);overflow:hidden;aspect-ratio:4/5;}
+
+/* Project detail media — a fixed, sane aspect ratio with object-fit:cover, so
+   every project photo (whatever its original orientation or how much empty
+   pavement/sky it happened to capture) reads as a deliberate, consistent
+   architectural frame rather than however tall the source file was. */
+/* 4/3 by default. villa-aldahrei is a portrait source photo (see its "ratio"
+   override below) — forcing every image into the same box regardless of the
+   source's own orientation is what caused that one to look over-cropped, so
+   only that project gets a taller box; everything else keeps its original frame. */
+.proj-detail-media{aspect-ratio:4/3;overflow:hidden;background:var(--paper-2);}
+.proj-detail-media img{width:100%;height:100%;object-fit:cover;}
+.proj-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease), opacity .5s;opacity:.88;}
+.proj-card:hover img{transform:scale(1.06);opacity:1;}
+.proj-card::before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(11,26,51,.92) 0%,rgba(11,26,51,.15) 46%,transparent 70%);z-index:1;}
+.proj-info{position:absolute;inset-inline:0;bottom:0;z-index:2;padding:22px 24px;color:#fff;}
+.proj-tag{font-size:11px;letter-spacing:.12em;color:var(--gold-light);text-transform:uppercase;margin-bottom:8px;}
+html[dir="rtl"] .proj-tag{letter-spacing:0;}
+.proj-info h4{font-family:var(--font-display);font-size:21px;text-transform:uppercase;line-height:1.15;}
+html[dir="rtl"] .proj-info h4{font-weight:800;font-size:18px;}
+.proj-meta{display:flex;gap:14px;margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.72);flex-wrap:wrap;}
+.proj-meta span{display:flex;align-items:center;gap:5px;}
+
+/* project list rows (text-only additional projects) */
+.proj-table{width:100%;border-collapse:collapse;}
+.proj-table th{text-align:start;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);padding:0 14px 14px;font-weight:600;}
+html[dir="rtl"] .proj-table th{letter-spacing:0;}
+.proj-table td{padding:20px 14px;border-top:1px solid var(--line);font-size:15px;}
+.proj-table tr td:first-child{font-family:var(--font-serif);font-style:italic;color:var(--navy);font-size:16px;}
+html[dir="rtl"] .proj-table tr td:first-child{font-family:var(--font-body);font-weight:700;font-style:normal;}
+
+/* ---------- Process ---------- */
+.process-track{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+.process-step{background:var(--paper);padding:36px 24px;}
+.process-step .n{font-family:var(--font-serif);font-style:italic;font-size:15px;color:var(--gold);}
+html[dir="rtl"] .process-step .n{font-family:var(--font-body);font-weight:800;font-style:normal;}
+.process-step h4{margin-top:16px;font-family:var(--font-display);font-size:19px;text-transform:uppercase;}
+html[dir="rtl"] .process-step h4{font-weight:800;font-size:16px;}
+.process-step p{margin-top:10px;font-size:14px;color:var(--ink-soft);line-height:1.55;}
+
+/* ---------- Timeline (history) ---------- */
+.timeline-scroll{overflow-x:auto;padding-bottom:20px;-webkit-overflow-scrolling:touch;}
+.timeline-track{display:flex;gap:0;min-width:max-content;position:relative;padding-top:44px;}
+.timeline-track::before{content:'';position:absolute;top:6px;inset-inline:0;height:1px;background:var(--line);}
+.tl-pt{width:180px;flex:none;position:relative;padding-inline-end:0;}
+.tl-pt .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);position:absolute;top:0;transform:translate(-50%,-50%);}
+html[dir="rtl"] .tl-pt .dot{transform:translate(50%,-50%);}
+.tl-pt .yr{font-family:var(--font-display);font-size:26px;color:var(--navy);margin-top:22px;}
+html[dir="rtl"] .tl-pt .yr{font-weight:800;}
+.tl-pt .desc{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.5;padding-inline-end:20px;}
+
+/* ---------- CTA band ---------- */
+.cta-band{background:var(--navy);color:#fff;padding:100px 0;text-align:center;}
+.cta-band .display-2{margin-bottom:30px;}
+.cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:36px;}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--navy-2);color:rgba(255,255,255,.8);padding:76px 0 30px;}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.1fr;gap:40px;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.12);}
+.footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.footer-brand img{height:38px;}
+.footer-brand span{font-family:var(--font-display);font-size:18px;color:#fff;}
+html[dir="rtl"] .footer-brand span{font-weight:800;}
+.footer-col h5{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;}
+html[dir="rtl"] .footer-col h5{letter-spacing:0;}
+.footer-col li{margin-bottom:11px;font-size:14.5px;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:26px;font-size:12.5px;color:rgba(255,255,255,.5);flex-wrap:wrap;gap:12px;}
+.social-row{display:flex;gap:14px;}
+.social-row a{width:36px;height:36px;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;transition:.3s;}
+.social-row a:hover{background:var(--gold);border-color:var(--gold);color:var(--navy);}
+.social-row svg{width:16px;height:16px;}
+
+/* ---------- WhatsApp floating (refined, not obtrusive) ---------- */
+.wa-fab{
+  position:fixed;bottom:22px;inset-inline-end:22px;z-index:80;
+  display:flex;align-items:center;gap:10px;background:var(--navy);color:#fff;
+  padding:13px 18px;border:1px solid var(--gold);
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  transition:transform .3s var(--ease), background .3s;
+  font-size:13.5px;font-weight:700;
+}
+.wa-fab:hover,.wa-fab:focus-visible{background:#1f9c46;border-color:#1f9c46;transform:translateY(-3px);}
+.wa-fab:active{background:#178a3b;transform:translateY(-1px);}
+.wa-fab svg{width:18px;height:18px;color:var(--gold-light);flex:none;transition:color .3s;}
+.wa-fab:hover svg,.wa-fab:focus-visible svg{color:#fff;}
+.wa-fab .lbl{display:none;}
+@media(min-width:640px){.wa-fab .lbl{display:inline;}}
+
+/* Dedicated WhatsApp button style used on the contact page + CTA bands —
+   premium by default, unmistakably WhatsApp on hover/tap. */
+.btn-whatsapp{
+  background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;
+}
+.btn-whatsapp svg{color:#25D366;transition:color .3s;}
+.btn-whatsapp:hover,.btn-whatsapp:focus-visible{background:#25D366;border-color:#25D366;color:#0b1a33;}
+.btn-whatsapp:hover svg,.btn-whatsapp:focus-visible svg{color:#0b1a33;}
+.btn-whatsapp:active{background:#1f9c46;border-color:#1f9c46;}
+.btn-whatsapp.on-paper{border-color:var(--line);color:var(--navy);}
+.btn-whatsapp.on-paper svg{color:#1f9c46;}
+.btn-whatsapp.on-paper:hover{color:#fff;}
+
+/* ---------- Page header (interior pages) ---------- */
+.page-hero{position:relative;background:var(--navy);color:#fff;padding:186px 0 90px;overflow:hidden;min-height:clamp(560px, 90vh, 940px);}
+@media(max-width:640px){.page-hero{padding:140px 0 60px;}}
+/* This min-height exists to fix a bug: on a wide, short desktop screen this
+   box could end a little short of the viewport, leaving a stray sliver of
+   the next section visible. A plain "100vh" fixed that on typical desktops
+   but scales with NO upper bound — on a taller monitor, and especially a
+   TV, the box would keep demanding more and more empty navy space below
+   the heading to fill the entire screen height, however large that is.
+   clamp(560px, 90vh, 940px) fixes the original sliver bug the same way
+   (still guaranteed a sensible minimum) while capping how large it's ever
+   allowed to grow, so screen height stops being able to blow this up
+   indefinitely. Below tablet width it's turned off entirely — see the
+   840px media query below — since phones are tall relative to their
+   width and a few lines of heading text are nowhere near that tall. */
+@media(max-width:820px){.page-hero{min-height:0;}}
+.page-hero .bg{position:absolute;inset:0;}
+.page-hero .bg img{width:100%;height:100%;object-fit:cover;opacity:.28;}
+.page-hero .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,26,51,.5),rgba(11,26,51,.97));}
+/* Same "scroll" cue as the homepage hero, reused here — but since .page-hero
+   isn't a bottom-anchored flex layout the way the homepage hero is (its
+   content just flows normally after the top padding), this instance is
+   anchored to the bottom of the section directly instead, so it still ends
+   up in the same visual spot: bottom-center, clear of everything else. */
+.page-hero .scroll-cue{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);margin:0;z-index:2;}
+.page-hero .inner{position:relative;z-index:2;}
+
+/* Texture variant — for pages that aren't literally showcasing a project
+   (About, Contact): a branded blueprint-grid + a large watermark year rather
+   than a random villa photo standing in as wallpaper. */
+.page-hero.texture{background:var(--navy);}
+.page-hero.texture .bg{
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 64px);
+  opacity:1;
+}
+.page-hero.texture .bg img{display:none;}
+.page-hero.texture .bg::after{background:radial-gradient(circle at 82% 18%, rgba(185,146,79,.16), transparent 45%),
+  linear-gradient(180deg,rgba(11,26,51,.2),rgba(9,18,35,.98));}
+.page-hero.texture .year-mark{
+  position:absolute;top:50%;inset-inline-end:clamp(-40px,4vw,40px);transform:translateY(-50%);
+  font-family:var(--font-display);font-size:clamp(160px,26vw,420px);color:rgba(255,255,255,.045);
+  line-height:1;pointer-events:none;z-index:1;letter-spacing:0;
+}
+@media(max-width:760px){.page-hero.texture .year-mark{display:none;}}
+
+/* Brand mark used in place of the year numeral on the About page — the
+   company's own building icon, faint, with a slow one-time entrance and a
+   gentle continuous "breathing" glow so it reads as alive rather than just
+   a static watermark. */
+.page-hero.texture .brand-mark{
+  position:absolute;top:50%;inset-inline-end:clamp(-30px,3vw,50px);transform:translateY(-50%) scale(.92);
+  width:clamp(220px,30vw,440px);z-index:1;pointer-events:none;opacity:0;
+  filter:drop-shadow(0 0 50px rgba(185,146,79,.22));
+  animation:markIn 1.6s cubic-bezier(.22,.68,0,1) forwards, markGlow 5.5s ease-in-out infinite 1.6s;
+}
+@keyframes markIn{
+  0%{opacity:0;transform:translateY(-50%) scale(.9);}
+  100%{opacity:.14;transform:translateY(-50%) scale(1);}
+}
+@keyframes markGlow{
+  0%,100%{opacity:.11;filter:drop-shadow(0 0 40px rgba(185,146,79,.18));}
+  50%{opacity:.19;filter:drop-shadow(0 0 62px rgba(185,146,79,.3));}
+}
+@media(max-width:760px){.page-hero.texture .brand-mark{display:none;}}
+@media(prefers-reduced-motion: reduce){
+  .page-hero.texture .brand-mark{animation:none;opacity:.15;}
+}
+.breadcrumb{display:flex;gap:8px;align-items:center;font-size:13px;color:rgba(255,255,255,.55);margin-bottom:22px;}
+.breadcrumb a:hover{color:#fff;}
+
+/* ---------- Generic content blocks ---------- */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+/* This needed its own, narrower breakpoint — 1080px is an entirely normal
+   width for a real PC browser window (not full-screen, a smaller monitor,
+   or Windows display-scaling shrinking the usable CSS width), and stacking
+   a two-column image+text layout that early made ordinary desktop use look
+   like a mobile view. It now only stacks on genuinely small/tablet-width
+   screens instead. */
+@media(max-width:760px){.two-col{grid-template-columns:1fr;gap:36px;}}
+/* Grid instead of wrapping flex: with three items of uneven natural widths,
+   flex-wrap decided unpredictably how many fit per row and left an oddly
+   large gap before whichever item wrapped alone. Grid fixes the column
+   positions explicitly, so every item lines up consistently and the gap
+   between rows (when it wraps on narrow screens) is the same, deliberate
+   row-gap every time — not a side effect of leftover flex space. */
+.stat-row{display:grid;grid-template-columns:repeat(3,auto);column-gap:44px;row-gap:26px;margin-top:40px;justify-content:start;}
+.stat-row .stat .num{font-family:var(--font-display);font-size:44px;color:var(--navy);}
+html[dir="rtl"] .stat-row .stat .num{font-weight:800;}
+.stat-row .stat .lbl{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+@media(max-width:640px){
+  /* CSS Grid's "1fr" columns are still, by default, constrained to never go
+     narrower than their own content's natural minimum width — so a column
+     stayed exactly as wide as "100+" needed once the counter animated past
+     "99" and gained a fourth character, at the expense of the column next
+     to it, and that's what visibly pushed the third stat down a row.
+     min-width:0 is the standard fix: it explicitly allows a grid/flex item
+     to shrink narrower than its own content would otherwise demand, so nothing
+     here can ever be pushed around by how many digits a number happens to be. */
+  .stat-row{grid-template-columns:repeat(3,1fr);column-gap:10px;row-gap:0;}
+  .stat-row .stat{min-width:0;}
+  .stat-row .stat .num{font-size:30px;white-space:nowrap;}
+  .stat-row .stat .lbl{font-size:11px;}
+}
+
+.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);}
+.vm-cell{background:var(--paper);padding:56px var(--gutter);}
+.vm-cell.navy{background:var(--navy);color:#fff;}
+.vm-cell .eyebrow{margin-bottom:18px;}
+.vm-cell p{margin-top:20px;}
+
+/* license doc chips */
+.doc-list{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line);}
+.doc-item{background:var(--paper);padding:30px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;}
+.doc-item .t{}
+.doc-item .t .name{font-weight:700;font-size:15.5px;color:var(--navy);}
+.doc-item .t .meta{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+.doc-item svg{width:18px;height:18px;flex:none;color:var(--gold);}
+
+/* ---------- Contact ---------- */
+.contact-form-solo{background:var(--paper);padding:60px var(--gutter);box-shadow:0 24px 60px -20px rgba(11,26,51,.15);}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.field{margin-bottom:20px;}
+.field.full{grid-column:1/-1;}
+.field label{display:block;font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--navy);margin-bottom:9px;text-transform:uppercase;}
+html[dir="rtl"] .field label{letter-spacing:0;}
+.field label .req{color:var(--gold);margin-inline-start:3px;}
+.field input,.field select,.field textarea{
+  width:100%;border:1px solid var(--line);background:#fff;padding:14px 15px;font-size:15px;color:var(--ink);transition:border-color .25s, box-shadow .25s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(185,146,79,.16);}
+.field textarea{resize:vertical;min-height:120px;}
+.field input:user-invalid,.field textarea:user-invalid{border-color:#c0392b;}
+.field.has-error input,.field.has-error textarea,.field.has-error select{border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.1);}
+.field-error{display:none;font-size:12.5px;color:#c0392b;margin-top:7px;font-weight:600;}
+.field.has-error .field-error{display:block;}
+.chip-group{display:flex;gap:10px;flex-wrap:wrap;}
+.chip{border:1px solid var(--line);padding:12px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:.25s;background:#fff;}
+.chip input{display:none;}
+.chip:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy);}
+.form-note{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
+.form-status{margin-top:16px;font-size:14px;font-weight:600;display:none;padding:12px 16px;border-inline-start:3px solid var(--navy);background:rgba(11,26,51,.05);}
+.form-status.show{display:block;}
+.form-status.error{border-color:#c0392b;background:rgba(192,57,43,.06);color:#a3312a;}
+.form-actions{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+
+/* map embed */
+.map-wrap{border:1px solid var(--line);height:100%;min-height:340px;}
+.map-wrap iframe{width:100%;height:100%;min-height:340px;border:0;filter:grayscale(.15);}
+
+/* ---------- Utility ---------- */
+.center{text-align:center;margin-inline:auto;}
+.mt-0{margin-top:0 !important;}
+.hidden{display:none !important;}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:7px 14px;font-size:12.5px;font-weight:600;}
+
+/* ---------- Responsive ---------- */
+/* Nav gets its own breakpoint, wider than the general content one below: five
+   links + logo + language switch + a CTA button need more room than 860px to
+   sit on one line without crowding, so a common laptop/tablet-landscape width
+   was forcing an overflowing or visually cramped desktop nav instead of
+   collapsing to the hamburger menu that was actually designed for that width. */
+@media(max-width:1120px){
+  .nav-desktop{display:none;}
+  .nav-toggle{display:block;}
+  .lang-switch-header-mobile{display:flex;margin-inline-end:16px;}
+}
+@media(max-width:1400px){
+  .section{padding:88px 0;}
+  .legacy{padding:118px 0 100px;}
+}
+@media(max-width:1080px){
+  .legacy-stats{grid-template-columns:repeat(2,1fr);row-gap:30px;}
+  .legacy-stat:nth-child(3){border-inline-start:0;}
+  .cred-grid{grid-template-columns:repeat(3,1fr);}
+  .cred-cell:nth-child(4){border-inline-start:0;}
+  .doc-list{grid-template-columns:1fr;}
+}
+@media(max-width:860px){
+  .svc-row{grid-template-columns:1fr;}
+  .svc-row:nth-child(even){direction:ltr;}
+  html[dir="rtl"] .svc-row:nth-child(even){direction:rtl;}
+  /* Text first, then the photo — the alternating left/right image placement
+     that works on desktop doesn't apply once everything stacks into a
+     single column, so this is a plain, deliberate reading order instead:
+     what the service is called and does, then a supporting image. */
+  .svc-copy{order:-1;}
+  .svc-media{min-height:280px;}
+  .proj-grid{grid-template-columns:repeat(2,1fr);}
+  .process-track{grid-template-columns:repeat(2,1fr);}
+  .vm-grid{grid-template-columns:1fr;}
+  /* Brand block spans the full row, and — because it's the only item placed
+     explicitly — the three link columns that follow (Navigate, Capabilities,
+     Reach Us) automatically flow into their own three-column row underneath
+     it, with no HTML changes needed to get a 1-then-3 layout out of a plain
+     grid. Their heading/list text is sized down a little too, since each
+     column is now only about a third of the width it had when stacked. */
+  .footer-grid{grid-template-columns:repeat(3,1fr);column-gap:18px;row-gap:36px;}
+  .footer-col h5{font-size:11px;margin-bottom:14px;}
+  .footer-col li{font-size:12.5px;margin-bottom:9px;}
+  /* The logo/name/tagline are dropped entirely on mobile (the logo already
+     appears once in the header on every page — repeating it again at the
+     bottom just to hold three social icons wasn't earning its space). Only
+     the social icons survive from that block, and rather than sitting where
+     the block used to be (the top), they're given a lower placement
+     priority than the three link columns, so they end up in their own row
+     at the very bottom of the footer, after Navigate/Capabilities/Reach Us,
+     centered. */
+  .footer-brand-block{grid-column:1/-1;order:2;}
+  .footer-brand-block .footer-brand,
+  .footer-brand-block p{display:none;}
+  .footer-brand-block .footer-social-wrap{width:100%;margin-top:0 !important;display:flex;justify-content:center;}
+  .cred-grid{grid-template-columns:repeat(2,1fr);}
+  .cred-cell:nth-child(3){border-inline-start:0;}
+  .form-grid{grid-template-columns:1fr;}
+  .hero-sub{flex-direction:column;align-items:center;}
+}
+@media(max-width:560px){
+  .process-track{grid-template-columns:1fr;}
+  .cred-grid{grid-template-columns:1fr 1fr;}
+  .cred-cell:nth-child(3){border-inline-start:1px solid var(--line);}
+  .cred-cell:nth-child(odd){border-inline-start:0;}
+  /* Kept at 2 columns instead of collapsing further to 1 — but a card that's
+     now roughly half as wide as before needs its own text to scale down
+     too, or a longer project title like "Shamkha South (Sector SHS10)"
+     would be fighting for space it no longer has. */
+  .proj-info{padding:14px 14px;}
+  .proj-info h4{font-size:15px;line-height:1.2;}
+  .proj-tag{font-size:9.5px;margin-bottom:5px;}
+  .proj-meta{font-size:10.5px;gap:8px;margin-top:6px;}
+  .legacy-years{gap:10px;}
+}
+
+/* ---------- Phone density pass ----------
+   The individual pieces (headings, images, buttons) were never oversized on
+   their own — what added up to endless scrolling was the SAME generous
+   padding around every section, repeated section after section, that reads
+   as comfortable breathing room on a wide desktop screen but just becomes
+   dead scroll distance stacked twelve times down a narrow phone. Nothing
+   here shrinks type below a readable size or changes any layout logic —
+   it's purely tightening the vertical rhythm between and within sections,
+   so more of what's already there fits in the same scroll. */
+@media(max-width:640px){
+  .section{padding:52px 0;}
+  .section-tight{padding:36px 0;}
+  .legacy{padding:92px 0 76px;}
+  .legacy-stats{margin-top:40px;}
+  .legacy-stat{padding:22px 14px 0;}
+  .section-head{margin-bottom:32px;}
+  .cta-band{padding:60px 0;}
+  .svc-copy{padding:30px var(--gutter);}
+  .process-step{padding:24px 18px;}
+  .doc-item{padding:22px 20px;}
+  .contact-form-solo{padding:24px 18px;}
+  .page-hero{padding:120px 0 40px;}
+  .vm-cell{padding:36px var(--gutter);}
+  .timeline-track{padding-top:32px;}
+  .footer-grid{padding-bottom:36px;}
+  .site-footer{padding:48px 0 24px;}
+}
+@media(max-width:560px){
+  .section{padding:44px 0;}
+}
