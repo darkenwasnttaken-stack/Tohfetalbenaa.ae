@@ -183,7 +183,7 @@ html[dir="rtl"] .btn:hover .icon-dir{transform:scaleX(-1) translateX(4px);}
   padding-block:12px;
   border-color:rgba(255,255,255,.08);
 }
-.brand{display:flex;align-items:center;gap:16px;color:#fff;transition:opacity .3s;}
+.brand{display:flex;align-items:center;gap:16px;color:#fff;transition:opacity .3s;white-space:nowrap;flex:none;}
 .brand:hover{opacity:.85;}
 .brand img{height:68px;width:68px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));transition:transform .4s var(--ease), height .35s var(--ease), width .35s var(--ease);}
 .brand:hover img{transform:scale(1.05);}
@@ -211,7 +211,9 @@ html[dir="rtl"] .brand-word small{letter-spacing:0;}
   .brand-word small{display:none;}
 }
 
-.nav-desktop{display:flex;align-items:center;gap:36px;}
+/* nowrap so that when the bar runs out of room it overflows horizontally
+   (which main.js can detect) instead of wrapping to a second line */
+.nav-desktop{display:flex;align-items:center;gap:32px;white-space:nowrap;}
 .nav-links{display:flex;gap:30px;}
 .nav-links a{color:#eef0f4;font-size:14.5px;font-weight:600;position:relative;padding:6px 0;}
 .nav-links a::after{content:'';position:absolute;bottom:0;inset-inline:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease);}
@@ -227,7 +229,6 @@ html[dir="rtl"] .nav-links a::after{transform-origin:right;}
    own copy of this same switcher. */
 .lang-switch-header-mobile{display:none;}
 .lang-switch a.active{color:var(--navy);background:var(--gold-light);border-color:var(--gold-light);}
-.nav-cta{margin-inline-start:6px;}
 .nav-toggle{display:none;background:none;border:0;width:38px;height:30px;position:relative;}
 .nav-toggle span{position:absolute;inset-inline:0;height:2px;background:#fff;transition:.35s var(--ease);}
 .nav-toggle span:nth-child(1){top:2px;}
@@ -269,7 +270,13 @@ html[dir="rtl"] .mobile-panel a{font-weight:800;}
   box-sizing:content-box;
   padding-top:clamp(104px, 13vh, 132px);
   min-height:calc(100vh - clamp(104px, 13vh, 132px));
-  min-height:calc(clamp(560px, 84vh, 820px) - clamp(104px, 13vh, 132px));
+  /* Target total hero height. Kept modest — a tall monitor was scaling this
+     to ~84vh and capping at 820px, which is well past what the content
+     (headline + description + buttons + scroll cue) actually needs, leaving a
+     large empty navy band below the cue. 76vh / 700px max keeps it a
+     commanding full-width band on a laptop while collapsing the dead space on
+     bigger screens; on a short viewport the content itself sets the height. */
+  min-height:calc(clamp(540px, 76vh, 700px) - clamp(104px, 13vh, 132px));
   display:flex;flex-direction:column;justify-content:flex-end;
   background:var(--navy);color:#fff;overflow:hidden;
 }
@@ -283,7 +290,14 @@ html[dir="rtl"] .mobile-panel a{font-weight:800;}
    sliding under the header; it simply has less unused space below the
    header and above its own text, in either language, because there's
    nothing artificially stretching the box past what the content needs). */
-@media(max-width:860px){
+/* This kicks in at the same width the desktop nav collapses to a hamburger
+   (1120px): past that point the wide-frame diagonal composition no longer
+   holds, so the hero stops being a bottom-anchored, full-viewport box — which
+   left a large dead gap above the text — and becomes exactly as tall as its
+   own content. The reserved header clearance (padding-top) is untouched. The
+   matching text-centering for this same breakpoint is further down, after the
+   base hero rules, so it isn't overridden by them. */
+@media(max-width:1120px){
   .hero{min-height:0;}
 }
 .hero-bg{position:absolute;inset:0;}
@@ -324,7 +338,7 @@ html[dir="rtl"] .hero-bg::after{
   .hero-photo-wrap img{animation:none;transform:scale(1.08);}
 }
 
-.hero-inner{position:relative;z-index:2;padding:0 var(--gutter) clamp(28px,5vh,56px);width:100%;}
+.hero-inner{position:relative;z-index:2;padding:0 var(--gutter) clamp(20px,3.5vh,40px);width:100%;}
 .hero-kicker{display:flex;align-items:center;gap:14px;margin-bottom:clamp(12px,2.5vh,22px);}
 .hero-kicker .line{width:46px;height:1px;background:var(--gold);}
 .hero-stack{margin:0;max-width:min(760px,86%);}
@@ -340,18 +354,23 @@ html[dir="rtl"] .hero-bg::after{
    read as cramped rather than composed. Given a little more room to breathe
    here specifically, plus a text-shadow on the description so it stays
    crisp regardless of what part of the photo happens to sit behind it. */
-@media(max-width:640px){
-  .hero-kicker{margin-bottom:20px;justify-content:center;}
-  .hero-sub{margin-top:28px;padding-top:22px;gap:22px 32px;}
-  .hero-name p{line-height:1.6;}
-  /* Centering the whole block together (kicker, headline, divider,
-     description) rather than only the headline — a centered headline
-     sitting above left-aligned text below it would look like two different
-     layouts stacked on top of each other instead of one composed hero. */
+/* From the tablet breakpoint down (same width the nav collapses), the text
+   column spans most of the frame instead of sitting in the left half of a
+   wide composition, so the whole block is centered together — kicker,
+   headline, divider and description — matching the phone layout. Placed
+   after the base hero rules above so `margin:0` on .hero-stack etc. doesn't
+   win on source order. */
+@media(max-width:1120px){
   .hero-inner{text-align:center;}
+  .hero-kicker{justify-content:center;}
   .hero-stack{margin-inline:auto;}
   .hero-sub{flex-direction:column;align-items:center;}
   .hero-name{margin-inline:auto;}
+}
+@media(max-width:640px){
+  .hero-kicker{margin-bottom:20px;}
+  .hero-sub{margin-top:28px;padding-top:22px;gap:22px 32px;}
+  .hero-name p{line-height:1.6;}
 }
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;}
 /* On phones, two buttons that each wrap to their own full-width row eat a
@@ -376,6 +395,22 @@ html[dir="rtl"] .hero-bg::after{
 .scroll-cue .stick::after{content:'';position:absolute;top:-100%;inset-inline:0;height:100%;background:var(--gold);animation:cue 1.8s infinite;}
 @keyframes cue{to{top:100%;}}
 @media(max-width:640px){.scroll-cue{display:none;}}
+
+/* Desktop hero: the text block is anchored to the TOP of the hero, a fixed
+   distance below the reserved header space, instead of being pushed to the
+   bottom of a tall fixed-height box (which put the empty space between the
+   header and the headline, and made that gap grow as the window narrowed).
+   The scroll cue then sits a fixed, comfortable distance below the buttons —
+   not pinned to the very bottom of the frame, which on a tall screen dumped
+   a big void between the buttons and the cue. Any small leftover height now
+   sits below the cue as the hero's floor. Only applies above the tablet
+   breakpoint; at/below 1120px the hero is already just as tall as its
+   content. */
+@media(min-width:1121px){
+  .hero{justify-content:flex-start;}
+  .hero-inner{flex:1;display:flex;flex-direction:column;}
+  .hero-inner .scroll-cue{margin-top:clamp(30px, 5vh, 54px);}
+}
 
 /* ---------- Section rhythm ---------- */
 .section{padding:112px 0;position:relative;}
@@ -556,30 +591,30 @@ html[dir="rtl"] .footer-col h5{letter-spacing:0;}
 .btn-whatsapp.on-paper:hover{color:#fff;}
 
 /* ---------- Page header (interior pages) ---------- */
-.page-hero{position:relative;background:var(--navy);color:#fff;padding:186px 0 90px;overflow:hidden;min-height:clamp(560px, 90vh, 940px);}
-@media(max-width:640px){.page-hero{padding:140px 0 60px;}}
-/* This min-height exists to fix a bug: on a wide, short desktop screen this
-   box could end a little short of the viewport, leaving a stray sliver of
-   the next section visible. A plain "100vh" fixed that on typical desktops
-   but scales with NO upper bound — on a taller monitor, and especially a
-   TV, the box would keep demanding more and more empty navy space below
-   the heading to fill the entire screen height, however large that is.
-   clamp(560px, 90vh, 940px) fixes the original sliver bug the same way
-   (still guaranteed a sensible minimum) while capping how large it's ever
-   allowed to grow, so screen height stops being able to blow this up
-   indefinitely. Below tablet width it's turned off entirely — see the
-   840px media query below — since phones are tall relative to their
-   width and a few lines of heading text are nowhere near that tall. */
+/* padding-top only has to clear the fixed header (~97px) plus a bit of
+   breathing room for the breadcrumb — the old 186px left a ~90px dead band
+   between the header and the breadcrumb on every interior page. Scaled gently
+   with viewport height, in the same spirit as the homepage hero's clearance. */
+.page-hero{position:relative;background:var(--navy);color:#fff;padding:clamp(128px, 14vh, 148px) 0 clamp(52px, 7vh, 76px);overflow:hidden;min-height:clamp(300px, 36vh, 360px);}
+@media(max-width:640px){.page-hero{padding:112px 0 44px;}}
+/* A modest floor so a one-line-heading interior page still reads as a header
+   band rather than a thin strip, and so a wide/short desktop viewport doesn't
+   end the box a hair short of the fold. Kept small and low-capped (44vh, max
+   440px) on purpose: the old clamp(560px, 90vh, 940px) forced the section to
+   ~90% of screen height regardless of content, which is what left hundreds of
+   pixels of dead navy between the heading and the next section. Below tablet
+   width it's turned off entirely — phones are tall relative to their width
+   and a couple of heading lines are nowhere near that tall. */
 @media(max-width:820px){.page-hero{min-height:0;}}
 .page-hero .bg{position:absolute;inset:0;}
 .page-hero .bg img{width:100%;height:100%;object-fit:cover;opacity:.28;}
 .page-hero .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,26,51,.5),rgba(11,26,51,.97));}
-/* Same "scroll" cue as the homepage hero, reused here — but since .page-hero
-   isn't a bottom-anchored flex layout the way the homepage hero is (its
-   content just flows normally after the top padding), this instance is
-   anchored to the bottom of the section directly instead, so it still ends
-   up in the same visual spot: bottom-center, clear of everything else. */
-.page-hero .scroll-cue{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);margin:0;z-index:2;}
+/* The homepage hero is a full-viewport moment where a "scroll" cue earns its
+   place; an interior page header is a short band with the next section already
+   almost in view, so the cue is just one more thing to leave clear space for.
+   Dropped here at every width — the space it used to sit in was the bulk of
+   the dead navy below the heading. */
+.page-hero .scroll-cue{display:none;}
 .page-hero .inner{position:relative;z-index:2;}
 
 /* Texture variant — for pages that aren't literally showcasing a project
@@ -701,7 +736,14 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 .form-status{margin-top:16px;font-size:14px;font-weight:600;display:none;padding:12px 16px;border-inline-start:3px solid var(--navy);background:rgba(11,26,51,.05);}
 .form-status.show{display:block;}
 .form-status.error{border-color:#c0392b;background:rgba(192,57,43,.06);color:#a3312a;}
+.form-status.success{border-color:#1f7a44;background:rgba(31,122,68,.08);color:#1c6b3d;}
 .form-actions{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+/* Honeypot: a decoy field, kept out of view and out of the tab order and the
+   a11y tree. Real people never touch it; bots that auto-fill every input do,
+   and the server then silently discards the submission. */
+.hp-field{position:absolute!important;left:-9999px!important;top:auto;width:1px;height:1px;padding:0;border:0;overflow:hidden;opacity:0;pointer-events:none;}
+/* Submit button while the request is in flight / after a successful send */
+#inquiry-form button[disabled]{opacity:.65;cursor:not-allowed;}
 
 /* map embed */
 .map-wrap{border:1px solid var(--line);height:100%;min-height:340px;}
@@ -714,16 +756,29 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:7px 14px;font-size:12.5px;font-weight:600;}
 
 /* ---------- Responsive ---------- */
-/* Nav gets its own breakpoint, wider than the general content one below: five
-   links + logo + language switch + a CTA button need more room than 860px to
-   sit on one line without crowding, so a common laptop/tablet-landscape width
-   was forcing an overflowing or visually cramped desktop nav instead of
-   collapsing to the hamburger menu that was actually designed for that width. */
-@media(max-width:1120px){
-  .nav-desktop{display:none;}
-  .nav-toggle{display:block;}
-  .lang-switch-header-mobile{display:flex;margin-inline-end:16px;}
+/* Nav: the full bar (logo + five links + language switch) stays visible for as
+   long as it physically fits on one line. main.js measures the header on load
+   and on every resize and toggles .nav-collapsed only when the content would
+   overflow — so the switch to the hamburger happens exactly when it has to, at
+   whatever width that turns out to be (and re-evaluates if the user zooms or
+   the webfont changes the text width).
+
+   The @media block below is the fallback for before that first measurement
+   runs and for JS-disabled browsers: collapse below ~960px, roughly the width
+   the bar needs. Once main.js has measured, it adds .nav-ready and this
+   fallback stops applying. */
+/* Collapsed header: the language switch is pulled over to sit right beside the
+   hamburger (margin-inline-start:auto eats the free space to its left) instead
+   of floating in the middle of the bar, which is where flex space-between left
+   it with only three items on the row. */
+@media(max-width:960px){
+  .site-header:not(.nav-ready) .nav-desktop{display:none;}
+  .site-header:not(.nav-ready) .nav-toggle{display:block;}
+  .site-header:not(.nav-ready) .lang-switch-header-mobile{display:flex;margin-inline-start:auto;margin-inline-end:14px;}
 }
+.site-header.nav-ready.nav-collapsed .nav-desktop{display:none;}
+.site-header.nav-ready.nav-collapsed .nav-toggle{display:block;}
+.site-header.nav-ready.nav-collapsed .lang-switch-header-mobile{display:flex;margin-inline-start:auto;margin-inline-end:14px;}
 @media(max-width:1400px){
   .section{padding:88px 0;}
   .legacy{padding:118px 0 100px;}
@@ -772,7 +827,6 @@ html[dir="rtl"] .field label{letter-spacing:0;}
   .cred-grid{grid-template-columns:repeat(2,1fr);}
   .cred-cell:nth-child(3){border-inline-start:0;}
   .form-grid{grid-template-columns:1fr;}
-  .hero-sub{flex-direction:column;align-items:center;}
 }
 @media(max-width:560px){
   .process-track{grid-template-columns:1fr;}

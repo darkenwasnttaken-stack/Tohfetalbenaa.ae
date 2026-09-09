@@ -1,0 +1,14 @@
+{
+    "name": "tohfetalbenaa/website",
+    "description": "Contact form mailer for tohfetalbenaa.ae (static site + PHP handler).",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=7.4",
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform-check": false
+    }
+}

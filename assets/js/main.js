@@ -1,19 +1,54 @@
 (function(){
   "use strict";
 
-  /* Header solid-on-scroll */
   var header = document.querySelector('.site-header');
-  function onScroll(){
-    if(!header) return;
-    if(window.scrollY > 10){ header.classList.add('solid'); }
-    else { header.classList.remove('solid'); }
-  }
-  document.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-
-  /* Mobile menu */
   var toggle = document.querySelector('.nav-toggle');
   var panel = document.querySelector('.mobile-panel');
+
+  /* Full nav vs. hamburger — decided by whether the whole bar actually fits
+     on one line, re-checked on every resize, rather than at a fixed width.
+     The class is removed first so the measurement reads the full nav's real
+     width; if the header content is then wider than the header, collapse.
+     Runs inside a rAF on resize, so the intermediate state is never painted. */
+  function measureNav(){
+    if(!header) return;
+    header.classList.remove('nav-collapsed');
+    if(header.scrollWidth > header.clientWidth + 1){
+      header.classList.add('nav-collapsed');
+    } else if(panel && panel.classList.contains('open')){
+      /* the full bar fits again (e.g. a tablet rotated to landscape) — don't
+         leave the mobile overlay stuck open with no visible way back */
+      panel.classList.remove('open');
+      if(toggle){ toggle.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }
+      document.body.style.overflow = '';
+    }
+    header.classList.add('nav-ready');
+  }
+
+  /* Header solid-on-scroll */
+  var lastSolid = null;
+  function onScroll(){
+    if(!header) return;
+    var solid = window.scrollY > 10;
+    if(solid === lastSolid) return;
+    lastSolid = solid;
+    header.classList.toggle('solid', solid);
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+
+  onScroll();
+  measureNav();
+
+  var navRaf = null;
+  window.addEventListener('resize', function(){
+    if(navRaf) cancelAnimationFrame(navRaf);
+    navRaf = requestAnimationFrame(measureNav);
+  }, {passive:true});
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(measureNav);
+  }
+
+  /* Mobile menu */
   if(toggle && panel){
     toggle.addEventListener('click', function(){
       var open = panel.classList.toggle('open');
@@ -74,16 +109,22 @@
   }
 
   /* ------------------------------------------------------------------
-     Contact form: validates every required field, then hands the
-     inquiry off to the visitor's email client (no backend exists to
-     receive it server-side). WhatsApp is a completely separate, always
-     -available link elsewhere on the page — it never depends on this
-     form being valid or even touched.
+     Contact form. Validates every required field client-side, then POSTs
+     to contact-handler.php, which sends the inquiry over authenticated
+     SMTP to info@tohfetalbenaa.ae (visitor address goes in Reply-To).
+     The server re-validates everything and is the source of truth; this
+     is just fast feedback + a nicer UX. WhatsApp elsewhere on the page is
+     a separate, always-available path that never depends on this form.
   ------------------------------------------------------------------ */
   var form = document.getElementById('inquiry-form');
   if(form){
     var PHONE_RE = /^[+]?[\d\s().-]{7,20}$/;
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    /* Stamp the moment the form became ready. The handler rejects
+       submissions that arrive implausibly fast (bots). */
+    var tsField = form.querySelector('input[name="ts"]');
+    if(tsField) tsField.value = String(Math.floor(Date.now() / 1000));
 
     function setError(field, msg){
       var wrap = field.closest('.field');
@@ -125,53 +166,103 @@
       f.addEventListener('input', function(){ if(f.closest('.field').classList.contains('has-error')) validateField(f); });
     });
 
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var btnHTML   = submitBtn ? submitBtn.innerHTML : '';   // keeps the arrow icon
+    var sending   = false;   // request in flight
+    var done      = false;   // a submission already succeeded on this page view
+
+    function showStatus(kind, msg){
+      var status = document.getElementById('form-status');
+      if(!status) return;
+      status.textContent = msg;
+      status.classList.remove('error','success');
+      status.classList.add('show', kind === 'ok' ? 'success' : 'error');
+    }
+    function setBusy(on){
+      sending = on;
+      if(submitBtn) submitBtn.disabled = on || done;
+    }
+    function setButton(text){        // text = string -> plain label; null -> restore original
+      if(!submitBtn) return;
+      if(text == null) submitBtn.innerHTML = btnHTML;
+      else submitBtn.textContent = text;
+    }
+
     form.addEventListener('submit', function(e){
       e.preventDefault();
-      var status = document.getElementById('form-status');
-      var ok = true;
+
+      // Prevent duplicate submissions: already sent, or one is in flight.
+      if(done || sending) return;
+
       var firstInvalid = null;
       validated.forEach(function(f){
-        var fieldOk = validateField(f);
-        if(!fieldOk){ ok = false; if(!firstInvalid) firstInvalid = f; }
+        if(!validateField(f) && !firstInvalid) firstInvalid = f;
       });
-
-      if(!ok){
-        if(status){
-          status.textContent = form.getAttribute('data-i18n-error');
-          status.classList.add('show','error');
-        }
-        if(firstInvalid) firstInvalid.focus();
+      if(firstInvalid){
+        showStatus('error', form.getAttribute('data-i18n-invalid') || 'Please complete the highlighted fields and try again.');
+        firstInvalid.focus();
         return;
       }
 
-      var data = new FormData(form);
-      var get = function(k){ return (data.get(k)||'').toString().trim(); };
-      var type = get('project_type') || '-';
-      var name = get('name'), phone = get('phone'), email = get('email'), loc = get('location'), msg = get('message');
+      var endpoint = form.getAttribute('action') || 'contact-handler.php';
+      var okMsg    = form.getAttribute('data-i18n-success') || 'Thank you \u2014 your inquiry has been sent.';
+      var errMsg   = form.getAttribute('data-i18n-error')   || 'Something went wrong. Please try again.';
 
-      var subject = (form.getAttribute('data-i18n-subject') || 'New Project Inquiry') + ' \u2014 ' + name;
-      var bodyLines = [
-        form.getAttribute('data-i18n-project') + ': ' + type,
-        form.getAttribute('data-i18n-name') + ': ' + name,
-        form.getAttribute('data-i18n-phone') + ': ' + phone,
-        form.getAttribute('data-i18n-email') + ': ' + email,
-        form.getAttribute('data-i18n-location') + ': ' + (loc || '-'),
-        '',
-        form.getAttribute('data-i18n-message') + ':',
-        msg
-      ];
-      var mailto = 'mailto:' + form.getAttribute('data-email')
-        + '?subject=' + encodeURIComponent(subject)
-        + '&body=' + encodeURIComponent(bodyLines.join('\n'));
+      var sendingMsg = form.getAttribute('data-i18n-sending') || 'Sending\u2026';
+      setBusy(true);
+      setButton(sendingMsg);
+      showStatus('ok', sendingMsg);
 
-      if(status){
-        status.textContent = form.getAttribute('data-i18n-success');
-        status.classList.remove('error');
-        status.classList.add('show');
-      }
-      window.location.href = mailto;
-      form.reset();
-      validated.forEach(clearError);
+      fetch(endpoint, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      })
+      .then(function(res){
+        return res.text().then(function(text){
+          var data = null;
+          try { data = JSON.parse(text); } catch(_){}
+          return { status: res.status, ok: res.ok, data: data };
+        });
+      })
+      .then(function(r){
+        if(r.data && r.data.ok){
+          done = true;
+          showStatus('ok', r.data.message || okMsg);
+          setBusy(false);
+          setButton(form.getAttribute('data-i18n-sent') || 'Sent \u2713');
+          form.reset();
+          validated.forEach(clearError);
+          if(tsField) tsField.value = String(Math.floor(Date.now() / 1000));
+          return;
+        }
+
+        // Per-field errors from the server.
+        if(r.data && r.data.errors && r.data.errors.length){
+          r.data.errors.forEach(function(nameAttr){
+            var fld = form.querySelector('[name="' + nameAttr + '"]');
+            if(fld) setError(fld, (fld.dataset && fld.dataset.errFormat) || 'Please check this field.');
+          });
+        }
+
+        if(r.data === null){
+          // Not JSON \u2014 almost always local preview (no PHP) or a server error page.
+          var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+          showStatus('error', local
+            ? 'The form needs the PHP handler, which doesn\u2019t run in local preview. It will work once the site is on Hostinger.'
+            : errMsg);
+        } else {
+          showStatus('error', r.data.message || errMsg);
+        }
+        setBusy(false);
+        setButton(null);
+      })
+      .catch(function(){
+        showStatus('error', errMsg);
+        setBusy(false);
+        setButton(null);
+      });
     });
   }
 })();

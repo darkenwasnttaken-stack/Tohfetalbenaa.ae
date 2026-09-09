@@ -17,7 +17,7 @@
 <meta name="theme-color" content="#0b1a33"/>
 <link rel="icon" href="../assets/images/brand/logo.jpg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="stylesheet" href="../assets/css/style.css?v=1788863311"/>
+<link rel="stylesheet" href="../assets/css/style.css?v=1788897958"/>
 
 
 </head>
@@ -30,7 +30,6 @@
   <nav class="nav-desktop" aria-label="Primary">
     <div class="nav-links"><a href="index.html">الرئيسية</a><a href="about.html">من نحن</a><a href="services.html">الخدمات</a><a href="projects.html">المشاريع</a><a href="contact.html" aria-current="page">تواصل معنا</a></div>
     <div class="lang-switch" id="lang-switch-desktop"></div>
-    <a class="btn btn-gold nav-cta" href="contact.html">ابدأ مشروعك<svg class="icon-dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </nav>
   <div class="lang-switch lang-switch-header-mobile" id="lang-switch-header-mobile"></div>
   <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
@@ -57,10 +56,16 @@
     <div class="contact-form-solo reveal">
       <div class="eyebrow">طلب مشروع تفصيلي</div>
         <h3 class="display-3" style="margin-top:14px">ما الذي تخطط له؟</h3>
-        <form id="inquiry-form" novalidate style="margin-top:30px" data-email="info@tohfetalbenaa.ae"
-          data-i18n-project="نوع المشروع" data-i18n-name="الاسم الكامل" data-i18n-phone="رقم الهاتف"
-          data-i18n-email="البريد الإلكتروني" data-i18n-location="موقع المشروع" data-i18n-message="أخبرنا عن مشروعك"
-          data-i18n-success="يتم فتح تطبيق البريد الإلكتروني مع تعبئة طلبك&hellip;" data-i18n-error="يرجى تعبئة الحقول المطلوبة بشكل صحيح قبل الإرسال." data-i18n-subject="طلب مشروع جديد">
+        <form id="inquiry-form" action="../contact-handler.php" method="post" novalidate style="margin-top:30px"
+          data-email="info@tohfetalbenaa.ae"
+          data-i18n-success="شكرًا لك — تم إرسال طلبك. سيعاود فريقنا التواصل معك خلال يوم عمل واحد."
+          data-i18n-error="عذرًا، حدث خطأ ولم يتم إرسال طلبك. يرجى المحاولة مرة أخرى أو التواصل عبر واتساب."
+          data-i18n-invalid="يرجى إكمال الحقول المحددة والمحاولة مرة أخرى."
+          data-i18n-sending="جارٍ إرسال طلبك&hellip;"
+          data-i18n-sent="تم إرسال الطلب">
+          <input type="text" name="company" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true"/>
+          <input type="hidden" name="ts" value=""/>
+          <input type="hidden" name="lang" value="ar"/>
           <div class="field full">
             <label>نوع المشروع</label>
             <div class="chip-group"><label class="chip"><input type="radio" name="project_type" value="بناء جديد" checked/>بناء جديد</label><label class="chip"><input type="radio" name="project_type" value="تجديد" />تجديد</label><label class="chip"><input type="radio" name="project_type" value="صيانة" />صيانة</label><label class="chip"><input type="radio" name="project_type" value="أخرى" />أخرى</label></div>
@@ -96,7 +101,7 @@
           <div class="form-actions">
             <button class="btn btn-gold" type="submit" style="width:100%;justify-content:center">إرسال الطلب<svg class="icon-dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
             <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-            <p class="form-note">يفتح الإرسال تطبيق بريدك الإلكتروني مع تعبئة الطلب موجّهًا إلى فريقنا. إن كنت مستعجلاً، استخدم واتساب بدلاً من ذلك &mdash; دون الحاجة لتعبئة النموذج.</p>
+            <p class="form-note">نردّ عادةً خلال يوم عمل واحد. تفضّل التواصل الآن؟ راسلنا عبر واتساب &mdash; دون الحاجة لتعبئة النموذج.</p>
           </div>
         </form>
       </div>
@@ -128,8 +133,8 @@
       <div class="footer-col">
         <h5>تواصل معنا</h5>
         <ul>
-          <li><a href="tel:+971505040285">+971 50 504 0285</a></li>
-          <li><a href="https://wa.me/971505040285" target="_blank" rel="noopener">+971 50 504 0285 (واتساب)</a></li>
+          <li><a href="tel:+971505040285"><span dir="ltr">+971 50 504 0285</span></a></li>
+          <li><a href="https://wa.me/971505040285" target="_blank" rel="noopener"><span dir="ltr">+971 50 504 0285</span> (واتساب)</a></li>
           <li><a href="mailto:info@tohfetalbenaa.ae">info@tohfetalbenaa.ae</a></li>
           <li><a href="https://maps.app.goo.gl/ukAdVQtSkpMcJvbR8" target="_blank" rel="noopener">شارع النجدة، المركز التنفيذي B10، أبوظبي</a></li>
         </ul>
@@ -150,6 +155,6 @@ document.getElementById('lang-switch-desktop').innerHTML = `<a href="../contact.
 var m = document.getElementById('lang-switch-mobile'); if(m) m.innerHTML = `<a href="../contact.html" class="">EN</a><a href="contact.html" class="active">AR</a>`;
 var hm = document.getElementById('lang-switch-header-mobile'); if(hm) hm.innerHTML = `<a href="../contact.html" class="">EN</a><a href="contact.html" class="active">AR</a>`;
 </script>
-<script src="../assets/js/main.js?v=1788863311"></script>
+<script src="../assets/js/main.js?v=1788897958"></script>
 </body>
 </html>

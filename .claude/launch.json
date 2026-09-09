@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "website",
-      "runtimeExecutable": "py",
-      "runtimeArgs": ["-3", "-m", "http.server", "4173", "--bind", "127.0.0.1"],
+      "runtimeExecutable": "C:/Users/clopz/AppData/Local/Programs/Python/Python312/python.exe",
+      "runtimeArgs": [".claude/devserver.py", "4173", "127.0.0.1"],
       "port": 4173
     }
   ]

@@ -19,3 +19,15 @@ node_modules/
 # Build output
 dist/
 .cache/
+
+# Contact form — secrets & runtime data (never commit)
+.env
+.env.*
+!.env.example
+/storage/*
+!/storage/.gitignore
+
+# Composer output is not committed (not used on this deployment).
+# NOTE: lib/PHPMailer/ IS committed on purpose — the Hostinger "Single" plan
+# has no Composer/SSH, so PHPMailer is vendored manually and must ship in the repo.
+/vendor/

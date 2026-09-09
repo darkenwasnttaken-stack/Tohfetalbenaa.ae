@@ -1,0 +1,7 @@
+# Runtime data written by contact-handler.php:
+#   mail.log            — attempt / error log (no message bodies, IP redacted)
+#   throttle/<hash>.json — per-IP rate-limit counters
+#   dedupe/<hash>        — markers used to ignore identical re-submissions
+# None of it belongs in the repo. Keep the folder, ignore the contents.
+*
+!.gitignore
