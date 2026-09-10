@@ -534,29 +534,30 @@ html[dir="rtl"] .legacy-stat .num{font-weight:800;}
 .svc-media{position:relative;overflow:hidden;min-height:360px;}
 .svc-media img{
   width:100%;height:100%;object-fit:cover;
-  --py:0px; --sc:1.12;
+  --py:0px; --sc:1.2;
   transform:translate3d(0,var(--py),0) scale(var(--sc));
-  transition:transform .3s ease-out;
+  /* no CSS transition on the transform — main.js eases --py and --sc every
+     frame, so it tracks the scroll smoothly instead of chasing a target */
   will-change:transform;
+  backface-visibility:hidden;
 }
-.svc-row:hover .svc-media img{--sc:1.18;}
 
-/* Capabilities image animation: each photo wipes in from its outer edge as
-   the row enters view (and again on the way back), then holds a gentle
-   parallax drift as you scroll past — the drift is driven by main.js
-   setting --py. */
+/* Capabilities image animation: each photo wipes + fades in from its outer
+   edge as the row enters view (and again on the way back), then holds a
+   gentle parallax drift as you scroll past (drift + hover zoom eased in
+   main.js). */
 html.js .svc-media{
   clip-path:inset(0 100% 0 0);           /* odd rows: image is on the left, wipe L->R */
-  transition:clip-path 1s var(--ease);
+  opacity:0;
+  transition:clip-path 1.25s cubic-bezier(.16,.75,.2,1), opacity .95s ease;
 }
 html.js .svc-row:nth-child(even) .svc-media{
   clip-path:inset(0 0 0 100%);           /* even rows: image on the right, wipe R->L */
 }
-html.js .svc-row.in .svc-media{clip-path:inset(0 0 0 0);}
+html.js .svc-row.in .svc-media{clip-path:inset(0 0 0 0);opacity:1;}
 @media (prefers-reduced-motion: reduce){
-  html.js .svc-media{clip-path:none;transition:none;}
-  .svc-media img{--py:0px;--sc:1;transition:none;}
-  .svc-row:hover .svc-media img{--sc:1.03;}
+  html.js .svc-media{clip-path:none;opacity:1;transition:none;}
+  .svc-media img{--py:0px;--sc:1;}
 }
 @media(max-width:822px){
   /* stacked layout — all images read as "on the left" */

@@ -163,24 +163,38 @@
     }
 
     var svcReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(!svcReduce){
-      var svcRaf = null;
-      var svcParallax = function(){
-        svcRaf = null;
+    if(!svcReduce && 'requestAnimationFrame' in window){
+      /* Per-frame eased parallax + hover zoom. Each image's --py and --sc are
+         lerped toward their targets every frame, so the motion is smooth and
+         trails the scroll naturally instead of snapping or chasing a CSS
+         transition. One rAF loop for the four images — trivially cheap, and
+         the browser pauses it while the tab is hidden. */
+      var SVC_BASE = 1.2, SVC_HOVER = 1.27, SVC_RANGE = 24;
+      var svcItems = [];
+      for(var si = 0; si < svcMedia.length; si++){
+        var im = svcMedia[si].firstElementChild;
+        if(im) svcItems.push({ box: svcMedia[si], img: im, py: 0, tpy: 0, sc: SVC_BASE, tsc: SVC_BASE });
+      }
+      svcItems.forEach(function(it){
+        var row = it.box.closest ? it.box.closest('.svc-row') : it.box.parentNode;
+        if(!row) return;
+        row.addEventListener('pointerenter', function(){ it.tsc = SVC_HOVER; });
+        row.addEventListener('pointerleave', function(){ it.tsc = SVC_BASE; });
+      });
+      (function svcTick(){
         var vh = window.innerHeight || 1;
-        for(var i = 0; i < svcMedia.length; i++){
-          var m = svcMedia[i], img = m.firstElementChild;
-          if(!img) continue;
-          var r = m.getBoundingClientRect();
-          if(r.bottom < -40 || r.top > vh + 40) continue;
-          var progress = (r.top + r.height / 2 - vh / 2) / vh;   /* ~ -0.6 .. 0.6 */
-          img.style.setProperty('--py', (progress * -30).toFixed(1) + 'px');
+        for(var i = 0; i < svcItems.length; i++){
+          var it = svcItems[i], r = it.box.getBoundingClientRect();
+          if(r.bottom > -120 && r.top < vh + 120){
+            it.tpy = ((r.top + r.height / 2 - vh / 2) / vh) * -SVC_RANGE;
+          }
+          it.py += (it.tpy - it.py) * 0.08;   /* trail the scroll */
+          it.sc += (it.tsc - it.sc) * 0.11;    /* ease the hover zoom */
+          it.img.style.setProperty('--py', it.py.toFixed(2) + 'px');
+          it.img.style.setProperty('--sc', it.sc.toFixed(4));
         }
-      };
-      var svcQueue = function(){ if(!svcRaf) svcRaf = requestAnimationFrame(svcParallax); };
-      window.addEventListener('scroll', svcQueue, {passive:true});
-      window.addEventListener('resize', svcQueue, {passive:true});
-      svcParallax();
+        requestAnimationFrame(svcTick);
+      })();
     }
   }
 
