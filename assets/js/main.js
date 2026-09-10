@@ -237,16 +237,22 @@
      on the snap homepage; phones just swipe, the buttons show from 900px up. */
   if (document.body.classList.contains('home-snap')) {
     var strip = document.querySelector('.proj-grid');
-    var stripHead = document.querySelector('.section-head');
-    if (strip && stripHead) {
+    if (strip && strip.parentNode) {
+      /* wrap the strip so the prev/next buttons can be positioned against its
+         left and right edges rather than sitting above it */
+      var stripWrap = document.createElement('div');
+      stripWrap.className = 'proj-strip';
+      strip.parentNode.insertBefore(stripWrap, strip);
+      stripWrap.appendChild(strip);
+
       var nav = document.createElement('div');
       nav.className = 'strip-nav';
       nav.innerHTML =
         '<button type="button" class="strip-btn" data-dir="prev" aria-label="Previous projects">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
         '<button type="button" class="strip-btn" data-dir="next" aria-label="Next projects">' +
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>';
-      stripHead.appendChild(nav);
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>';
+      stripWrap.appendChild(nav);
 
       var stripRtl = getComputedStyle(strip).direction === 'rtl';
       var prevBtn = nav.querySelector('[data-dir="prev"]');

@@ -1168,26 +1168,29 @@ body.home-snap .section-head{ margin-bottom:clamp(20px, 3.4vh, 40px); }
      the head + strip still fit one screen, in English and the taller Arabic */
   body.home-snap .section{ padding-block:clamp(84px,11vh,120px) clamp(32px,5vh,60px); }
 }
+/* the wrapper carries the full-bleed break-out and is the positioning
+   context for the flanking prev/next buttons */
+body.home-snap .proj-strip{
+  position:relative;
+  width:100vw;
+  margin-inline:calc(50% - 50vw);
+}
 body.home-snap .proj-grid{
   display:flex;
   grid-template-columns:none;
   gap:14px;
   background:none;
-  /* break out of the centred .container to the full viewport width so the
-     cards can be large and still show a peek of the next one */
-  width:100vw;
-  margin-inline:calc(50% - 50vw);
+  width:100%;
   padding-inline:var(--gutter);
   overflow-x:auto;
   overflow-y:hidden;
   scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch;
-  padding-bottom:12px;
-  scrollbar-width:thin;
-  scrollbar-color:rgba(11,26,51,.32) transparent;
+  /* no visible scrollbar — the buttons (desktop) and swipe (touch) drive it */
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
-body.home-snap .proj-grid::-webkit-scrollbar{ height:6px; }
-body.home-snap .proj-grid::-webkit-scrollbar-thumb{ background:rgba(11,26,51,.28); border-radius:3px; }
+body.home-snap .proj-grid::-webkit-scrollbar{ display:none; width:0; height:0; }
 body.home-snap .proj-card{
   flex:0 0 clamp(236px, 74vw, 340px);
   aspect-ratio:4/5;
@@ -1216,47 +1219,59 @@ body.home-snap .proj-info{ transition:transform .45s var(--ease); }
   body.home-snap .proj-card:hover .proj-info{ transform:translateY(-5px); }
 }
 
-/* arrow controls + edge fade — desktop only (phones swipe) */
+/* prev / next buttons flank the strip left & right, vertically centred on
+   the cards — desktop only (phones swipe). Edge fade behind them. */
 body.home-snap .strip-nav{ display:none; }
 @media(min-width:900px){
-  body.home-snap .section-head{ align-items:center; flex-wrap:nowrap; }
+  body.home-snap .section-head{ align-items:center; }
   body.home-snap .section-head > .btn-line{ margin-inline-start:auto; }
-  body.home-snap .strip-nav{ display:flex; gap:10px; margin-inline-start:18px; }
+
+  body.home-snap .strip-nav{ display:block; }
   body.home-snap .strip-btn{
-    width:52px; height:52px; border-radius:50%; flex:none;
+    position:absolute; top:50%; z-index:5;
+    width:clamp(48px, 3.6vw, 60px); aspect-ratio:1; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    background:transparent; color:var(--navy);
-    border:1.5px solid rgba(11,26,51,.26);
+    color:var(--navy);
+    background:rgba(255,255,255,.82);
+    -webkit-backdrop-filter:blur(10px) saturate(1.4);
+            backdrop-filter:blur(10px) saturate(1.4);
+    border:1px solid rgba(11,26,51,.10);
+    box-shadow:0 12px 34px -12px rgba(8,17,33,.4), 0 2px 8px -3px rgba(8,17,33,.25);
     cursor:pointer;
-    transition:transform .35s var(--ease), background .35s var(--ease),
-               border-color .35s var(--ease), color .35s var(--ease), opacity .3s var(--ease);
+    transition:transform .4s var(--ease), background .3s var(--ease),
+               color .3s var(--ease), box-shadow .3s var(--ease), opacity .35s var(--ease);
   }
-  body.home-snap .strip-btn svg{ width:20px; height:20px; transition:transform .35s var(--ease); }
+  body.home-snap .strip-btn[data-dir="prev"]{ inset-inline-start:clamp(6px, 1.4vw, 24px); transform:translateY(-50%); }
+  body.home-snap .strip-btn[data-dir="next"]{ inset-inline-end:clamp(6px, 1.4vw, 24px); transform:translateY(-50%); }
+  body.home-snap .strip-btn svg{ width:22px; height:22px; transition:transform .35s var(--ease); }
+  html[dir="rtl"] body.home-snap .strip-btn svg{ transform:scaleX(-1); }
+
   body.home-snap .strip-btn:hover{
     background:var(--navy); color:#fff; border-color:var(--navy);
-    transform:translateY(-2px) scale(1.06);
+    box-shadow:0 18px 44px -12px rgba(8,17,33,.55);
+    transform:translateY(-50%) scale(1.09);
   }
-  body.home-snap .strip-btn[data-dir="next"]:hover svg{ transform:translateX(3px); }
-  body.home-snap .strip-btn[data-dir="prev"]:hover svg{ transform:translateX(-3px); }
-  body.home-snap .strip-btn:active{ transform:scale(.93); }
-  body.home-snap .strip-btn:disabled{ opacity:.25; pointer-events:none; }
+  body.home-snap .strip-btn:active{ transform:translateY(-50%) scale(.94); }
+  body.home-snap .strip-btn[data-dir="next"]:hover svg{ transform:translateX(4px); }
+  body.home-snap .strip-btn[data-dir="prev"]:hover svg{ transform:translateX(-4px); }
+  html[dir="rtl"] body.home-snap .strip-btn[data-dir="next"]:hover svg{ transform:scaleX(-1) translateX(4px); }
+  html[dir="rtl"] body.home-snap .strip-btn[data-dir="prev"]:hover svg{ transform:scaleX(-1) translateX(-4px); }
+  /* the end you can't go — fade the button right out */
+  body.home-snap .strip-btn:disabled{ opacity:0; pointer-events:none; transform:translateY(-50%) scale(.88); }
   body.home-snap .strip-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
-  html[dir="rtl"] body.home-snap .strip-btn svg{ transform:scaleX(-1); }
-  html[dir="rtl"] body.home-snap .strip-btn[data-dir="next"]:hover svg{ transform:scaleX(-1) translateX(3px); }
-  html[dir="rtl"] body.home-snap .strip-btn[data-dir="prev"]:hover svg{ transform:scaleX(-1) translateX(-3px); }
 
   body.home-snap .proj-grid{
-    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%);
-            mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 95%,transparent 100%);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);
     transition:-webkit-mask-image .45s linear, mask-image .45s linear;
   }
   body.home-snap .proj-grid.at-start{
-    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 95%,transparent 100%);
-            mask-image:linear-gradient(90deg,#000 0,#000 95%,transparent 100%);
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 93%,transparent 100%);
+            mask-image:linear-gradient(90deg,#000 0,#000 93%,transparent 100%);
   }
   body.home-snap .proj-grid.at-end{
-    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 100%);
-            mask-image:linear-gradient(90deg,transparent 0,#000 5%,#000 100%);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
   }
 }
 @media (prefers-reduced-motion: reduce){
