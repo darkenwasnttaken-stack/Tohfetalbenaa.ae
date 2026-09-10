@@ -142,7 +142,7 @@ html[dir="rtl"] .eyebrow{letter-spacing:0;}
      and the headline ends up oversized relative to the screen. min(vw,vh)
      makes it back off on short screens the same way it already backs off
      on narrow ones. */
-  font-size:clamp(38px, min(6.8vw, 11vh), 92px);
+  font-size:clamp(48px, min(8.4vw, 13.5vh), 132px);
 }
 /* Arabic display type: Fraunces has no Arabic, and the italic/title-case
    treatment above is Latin-only anyway — keep Arabic on Tajawal, upright,
@@ -1073,22 +1073,22 @@ body.home-snap .hero-inner{
 body.home-snap .hero-kicker{ margin-bottom:clamp(14px, 2.4vh, 22px); }
 body.home-snap .hero-sub{ margin-top:auto; }   /* shove description + CTAs to the bottom */
 
-/* Headline: a held measure with generous air, not a wall-to-wall banner.
-   The whitespace around it is what makes it read as composed. */
+/* Headline: large and confident, held to a sensible measure so the two
+   lines stack cleanly rather than running edge to edge. */
 body.home-snap .hero-stack{
-  max-width:min(15ch, 92%);
-  font-size:clamp(42px, 8.4vw, 82px);
-  line-height:1.05;
-  letter-spacing:-.016em;
+  max-width:min(20ch, 94%);
+  font-size:clamp(54px, 13vw, 116px);
+  line-height:1.02;
+  letter-spacing:-.018em;
   text-wrap:balance;
 }
 body.home-snap .hero-stack .row1{ display:block; }
-body.home-snap .hero-stack .row2{ display:block; margin-top:.16em; }
+body.home-snap .hero-stack .row2{ display:block; margin-top:.12em; }
 html[dir="rtl"] body.home-snap .hero-stack{ max-width:min(1100px, 94%); line-height:1.2; letter-spacing:0; font-size:clamp(46px, 12vw, 120px); }
 html[dir="rtl"] body.home-snap .hero-stack .row2{ margin-top:.26em; }
 @media(min-width:1121px){
-  body.home-snap .hero-stack{ max-width:17ch; font-size:clamp(62px, 6vw, 96px); }
-  body.home-snap .hero-stack .row2{ margin-top:.14em; }
+  body.home-snap .hero-stack{ max-width:22ch; font-size:clamp(84px, 9vw, 156px); }
+  body.home-snap .hero-stack .row2{ margin-top:.08em; }
   html[dir="rtl"] body.home-snap .hero-stack{ max-width:none; font-size:clamp(64px, 7.4vw, 132px); }
 }
 
