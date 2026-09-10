@@ -537,31 +537,34 @@ html[dir="rtl"] .legacy-stat .num{font-weight:800;}
   --py:0px; --sc:1.2;
   transform:translate3d(0,var(--py),0) scale(var(--sc));
   /* no CSS transition on the transform — main.js eases --py and --sc every
-     frame, so it tracks the scroll smoothly instead of chasing a target */
-  will-change:transform;
+     frame, so it tracks the scroll smoothly rather than chasing a target */
   backface-visibility:hidden;
 }
 
 /* Capabilities image animation: each photo wipes + fades in from its outer
-   edge as the row enters view (and again on the way back), then holds a
-   gentle parallax drift as you scroll past (drift + hover zoom eased in
-   main.js). */
-html.js .svc-media{
-  clip-path:inset(0 100% 0 0);           /* odd rows: image is on the left, wipe L->R */
-  opacity:0;
+   edge as the media enters view (and again on the way back), then holds a
+   gentle parallax drift (drift + hover zoom eased in main.js). The clip is
+   on the <img>, not .svc-media, so the observer can still see .svc-media.
+   The revealed state is the default; :not(.in) defines the hidden state. */
+html.js .svc-media img{
+  clip-path:inset(0 0 0 0);
   transition:clip-path 1.25s cubic-bezier(.16,.75,.2,1), opacity .95s ease;
 }
-html.js .svc-row:nth-child(even) .svc-media{
+html.js .svc-media:not(.in) img{
+  clip-path:inset(0 100% 0 0);           /* odd rows: image on the left, wipe L->R */
+  opacity:0;
+}
+html.js .svc-row:nth-child(even) .svc-media:not(.in) img{
   clip-path:inset(0 0 0 100%);           /* even rows: image on the right, wipe R->L */
 }
-html.js .svc-row.in .svc-media{clip-path:inset(0 0 0 0);opacity:1;}
-@media (prefers-reduced-motion: reduce){
-  html.js .svc-media{clip-path:none;opacity:1;transition:none;}
-  .svc-media img{--py:0px;--sc:1;}
-}
 @media(max-width:822px){
-  /* stacked layout — all images read as "on the left" */
-  html.js .svc-row:nth-child(even) .svc-media{clip-path:inset(0 100% 0 0);}
+  html.js .svc-row:nth-child(even) .svc-media:not(.in) img{clip-path:inset(0 100% 0 0);}
+}
+@media (prefers-reduced-motion: reduce){
+  html.js .svc-media img,
+  html.js .svc-media:not(.in) img,
+  html.js .svc-row:nth-child(even) .svc-media:not(.in) img{clip-path:none;opacity:1;transition:none;}
+  .svc-media img{--py:0px;--sc:1;}
 }
 .svc-copy{padding:54px var(--gutter);display:flex;flex-direction:column;justify-content:center;}
 .svc-index{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--gold);margin-bottom:14px;}
@@ -594,11 +597,30 @@ html[dir="rtl"] .svc-row:nth-child(even) .svc-copy{direction:rtl;}
 .page-projects .proj-detail-media img{
   --py:0px; --sc:1.2;
   transform:translate3d(0,var(--py),0) scale(var(--sc));
-  will-change:transform;
   backface-visibility:hidden;
 }
 /* keep the portrait/contain photo untouched by the zoom-parallax */
 .page-projects .proj-detail-media img[style*="contain"]{--sc:1;--py:0px;transform:none;}
+
+/* --- vertical rhythm: 70px per entry is right on a wide screen, far too
+   much stacked; tighten it right down on tablet / phone --- */
+.proj-entry{padding:70px 0;border-top:1px solid var(--line);}
+@media(max-width:1024px){ .proj-entry{padding:38px 0;} }
+@media(max-width:640px){ .proj-entry{padding:28px 0;} }
+/* on the projects page, top-align the two columns so a shorter photo
+   column doesn't leave a centred gap under the text */
+@media(max-width:1024px){ .page-projects .two-col{align-items:start;} }
+
+/* --- text column: staggered fade-up, keyed off the article's .in --- */
+html.js .page-projects article.two-col > div:last-child > *{
+  opacity:0;transform:translateY(15px);
+  transition:opacity .55s var(--ease), transform .55s var(--ease);
+}
+html.js .page-projects article.two-col.in > div:last-child > *{opacity:1;transform:none;}
+html.js .page-projects article.two-col.in > div:last-child > :nth-child(1){transition-delay:.10s;}
+html.js .page-projects article.two-col.in > div:last-child > :nth-child(2){transition-delay:.20s;}
+html.js .page-projects article.two-col.in > div:last-child > :nth-child(3){transition-delay:.30s;}
+html.js .page-projects article.two-col.in > div:last-child > :nth-child(4){transition-delay:.40s;}
 
 /* revealed state is the default; the :not(.in) rules below define the hidden
    "wiped" state and its direction, so adding/removing .in transitions both
@@ -615,8 +637,10 @@ html.js .page-projects article.two-col:not(.in) .proj-detail-media{
 html.js .page-projects article.two-col:not(.in):nth-of-type(even) .proj-detail-media{
   clip-path:inset(0 0 0 100%);            /* hidden — even projects wipe R -> L */
 }
-/* text column: plain fade, no rise — let the photo carry the motion */
-html.js .page-projects article.two-col.reveal{transform:none;}
+/* the <article> itself is just a frame — its own reveal fade/rise is
+   suppressed; the photo wipes and the text column staggers, both keyed
+   off .in */
+html.js .page-projects article.two-col.reveal{opacity:1;transform:none;}
 
 @media(max-width:760px){
   html.js .page-projects article.two-col:not(.in):nth-of-type(even) .proj-detail-media{
@@ -630,6 +654,7 @@ html.js .page-projects article.two-col.reveal{transform:none;}
     clip-path:none;opacity:1;transition:none;
   }
   .page-projects .proj-detail-media img{--py:0px;--sc:1;transform:none;}
+  html.js .page-projects article.two-col > div:last-child > *{opacity:1;transform:none;transition:none;}
 }
 .proj-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease), opacity .5s;opacity:.88;}
 .proj-card:hover img{transform:scale(1.06);opacity:1;}
@@ -784,7 +809,8 @@ html[dir="rtl"] .footer-col h2{letter-spacing:0;}
    a two-column image+text layout that early made ordinary desktop use look
    like a mobile view. It now only stacks on genuinely small/tablet-width
    screens instead. */
-@media(max-width:760px){.two-col{grid-template-columns:1fr;gap:36px;}}
+@media(max-width:1024px){.two-col{gap:44px;}}
+@media(max-width:760px){.two-col{grid-template-columns:1fr;gap:24px;}}
 /* Grid instead of wrapping flex: with three items of uneven natural widths,
    flex-wrap decided unpredictably how many fit per row and left an oddly
    large gap before whichever item wrapped alone. Grid fixes the column

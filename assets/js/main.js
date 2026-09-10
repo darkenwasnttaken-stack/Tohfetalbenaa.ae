@@ -12,7 +12,7 @@
      hidden under html.js, and if anything below throws before the observer is
      wired up, this catch reveals everything immediately. */
   function revealAll(){
-    var r = document.querySelectorAll('.reveal:not(.in)');
+    var r = document.querySelectorAll('.reveal:not(.in), .svc-media:not(.in)');
     for (var i = 0; i < r.length; i++) r[i].classList.add('in');
     var hero = document.querySelector('.hero');
     if (hero) hero.classList.add('is-in');   /* homepage hero entrance state */
@@ -154,19 +154,21 @@
     document.querySelectorAll('.svc-media, .page-projects .proj-detail-media')
   );
   if(mediaBoxes.length){
-    /* Capabilities rows need their own observer: the media clips itself to a
-       zero-area box before it reveals, so it can never report as intersecting.
+    /* Capabilities: observe each .svc-media directly (the clip is on the
+       <img> now, so the media box is always a real target). threshold 0 =
+       reveal the moment any part enters, so the wipe plays as you reach it
+       and there's never a stretch of clipped, invisible image on screen.
        Projects articles already carry `.reveal`, so the generic observer
        above toggles their `.in`. */
-    var svcRows = document.querySelectorAll('.svc-row');
-    if(svcRows.length){
+    var svcMediaEls = document.querySelectorAll('.svc-media');
+    if(svcMediaEls.length){
       if('IntersectionObserver' in window){
         var svcIO = new IntersectionObserver(function(es){
           es.forEach(function(e){ e.target.classList.toggle('in', e.isIntersecting); });
-        }, {threshold:0.22});
-        svcRows.forEach(function(row){ svcIO.observe(row); });
+        }, {threshold:0});
+        svcMediaEls.forEach(function(m){ svcIO.observe(m); });
       } else {
-        svcRows.forEach(function(row){ row.classList.add('in'); });
+        svcMediaEls.forEach(function(m){ m.classList.add('in'); });
       }
     }
 
@@ -191,16 +193,20 @@
       });
       if(mItems.length){
         (function mTick(){
-          var vh = window.innerHeight || 1;
-          for(var i = 0; i < mItems.length; i++){
+          var vh = window.innerHeight || 1, i;
+          /* read every rect first, then write every style — no interleaved
+             layout thrash */
+          for(i = 0; i < mItems.length; i++){
             var it = mItems[i], r = it.box.getBoundingClientRect();
             if(r.bottom > -140 && r.top < vh + 140){
               it.tpy = ((r.top + r.height / 2 - vh / 2) / vh) * -M_RANGE;
             }
             it.py += (it.tpy - it.py) * 0.08;   /* trail the scroll */
             it.sc += (it.tsc - it.sc) * 0.11;   /* ease the hover zoom */
-            it.img.style.setProperty('--py', it.py.toFixed(2) + 'px');
-            it.img.style.setProperty('--sc', it.sc.toFixed(4));
+          }
+          for(i = 0; i < mItems.length; i++){
+            mItems[i].img.style.setProperty('--py', mItems[i].py.toFixed(2) + 'px');
+            mItems[i].img.style.setProperty('--sc', mItems[i].sc.toFixed(4));
           }
           requestAnimationFrame(mTick);
         })();
