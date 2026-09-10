@@ -16,6 +16,8 @@
     for (var i = 0; i < r.length; i++) r[i].classList.add('in');
     var hero = document.querySelector('.hero');
     if (hero) hero.classList.add('is-in');   /* homepage hero entrance state */
+    var heroHeadFB = document.querySelector('.hero .hero-stack');
+    if (heroHeadFB) heroHeadFB.classList.add('head-in');
   }
 
   /* Stamp the current year into any .cyr element (footer copyright) so it never
@@ -227,15 +229,33 @@
      replay until some later scroll happened to cross a threshold. */
   if(document.body.classList.contains('home-snap')){
     var heroEl = document.querySelector('.hero');
+    var heroHead = document.querySelector('.hero .hero-stack');
     if(heroEl && 'IntersectionObserver' in window){
+      /* Master state (photo / kicker / description / scroll cue): tracks the
+         whole section -- armed when it's the live snap section, reset only
+         once it's completely gone so the exit is never seen mid-scroll. */
       new IntersectionObserver(function(es){
         es.forEach(function(e){ if(e.intersectionRatio >= 0.5) heroEl.classList.add('is-in'); });
       }, {threshold:[0.5]}).observe(heroEl);
       new IntersectionObserver(function(es){
         es.forEach(function(e){ if(!e.isIntersecting) heroEl.classList.remove('is-in'); });
       }, {threshold:0}).observe(heroEl);
+      /* The headline replays off ITS OWN visibility: scroll down far enough
+         that the h1 clears the top of the screen and it resets, so scrolling
+         back up to it runs the line-by-line reveal again -- even when the
+         section itself never fully left the viewport. Split arm/disarm
+         observers so a fast snap-scroll can't park it in a dead zone. */
+      if(heroHead){
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ if(e.intersectionRatio >= 0.2) heroHead.classList.add('head-in'); });
+        }, {threshold:[0.2]}).observe(heroHead);
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ if(!e.isIntersecting) heroHead.classList.remove('head-in'); });
+        }, {threshold:0}).observe(heroHead);
+      }
     } else if(heroEl){
       heroEl.classList.add('is-in');
+      if(heroHead) heroHead.classList.add('head-in');
     }
   }
 
