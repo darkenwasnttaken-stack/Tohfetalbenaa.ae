@@ -870,3 +870,108 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 @media(max-width:560px){
   .section{padding:44px 0;}
 }
+
+/* ==================================================================
+   HOMEPAGE ONLY — full-viewport sections, one screen at a time.
+   Everything here is scoped to <body class="home-snap"> (index.html
+   and ar/index.html). No other page or shared component is affected.
+   Snap is "proximity": sections line up with the screen but the user
+   can still stop between them and scroll freely. prefers-reduced-motion
+   already disables the smooth easing site-wide.
+   ================================================================== */
+body.home-snap{
+  scroll-snap-type:y proximity;      /* propagates from <body> to the viewport */
+  scroll-padding-top:0;
+}
+body.home-snap main > section{
+  scroll-snap-align:start;
+  min-height:100vh;                  /* fallback for old engines */
+  min-height:100svh;                 /* excludes the mobile browser UI */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  box-sizing:border-box;
+  /* asymmetric: extra top room so centred content clears the fixed header */
+  padding-top:clamp(96px, 13vh, 140px);
+  padding-bottom:clamp(48px, 8vh, 96px);
+}
+
+/* 1 — Hero ---------------------------------------------------------- */
+body.home-snap .hero{
+  /* content-box + its own padding-top already reserve the header gap, so the
+     min-height is one screen minus that reserved strip (matches the base
+     hero maths) — total rendered height stays exactly one screen. */
+  box-sizing:content-box;
+  padding-top:clamp(104px, 13vh, 132px);
+  padding-bottom:0;
+  min-height:calc(100vh - clamp(104px, 13vh, 132px));
+  min-height:calc(100svh - clamp(104px, 13vh, 132px));
+  justify-content:center;
+}
+/* fill the hero so the centred text group and the pinned scroll cue have
+   the full screen to work with */
+body.home-snap .hero-inner{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+body.home-snap .hero .scroll-cue{
+  display:flex;
+  position:absolute;
+  left:50%;
+  bottom:clamp(14px, 2.4vh, 28px);
+  transform:translateX(-50%);
+  margin:0;
+}
+
+/* 2 — Heritage / "2002 -> Today" ---------------------------------- */
+body.home-snap .legacy{ padding-block:clamp(96px,13vh,140px) clamp(56px,9vh,110px); }
+body.home-snap .legacy .container{ width:100%; }
+body.home-snap .legacy-years{ font-size:clamp(64px, 15vw, 184px); }
+body.home-snap .legacy-caption{ margin-top:clamp(18px, 3vh, 34px); }
+body.home-snap .legacy-stats{ margin-top:clamp(36px, 7vh, 84px); }
+
+/* 3 — Selected works: a horizontal swipe strip ------------------- */
+body.home-snap .section{ overflow:hidden; }        /* the strip scrolls, not the section */
+body.home-snap .section > .container{ display:flex; flex-direction:column; width:100%; min-height:0; }
+body.home-snap .section-head{ margin-bottom:clamp(22px, 4vh, 44px); }
+body.home-snap .proj-grid{
+  display:flex;
+  grid-template-columns:none;
+  gap:14px;
+  background:none;
+  /* break out of the centred .container to the full viewport width so the
+     cards can be large and still show a peek of the next one */
+  width:100vw;
+  margin-inline:calc(50% - 50vw);
+  padding-inline:var(--gutter);
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:12px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(11,26,51,.32) transparent;
+}
+body.home-snap .proj-grid::-webkit-scrollbar{ height:6px; }
+body.home-snap .proj-grid::-webkit-scrollbar-thumb{ background:rgba(11,26,51,.28); border-radius:3px; }
+body.home-snap .proj-card{
+  flex:0 0 clamp(236px, 74vw, 340px);
+  aspect-ratio:4/5;
+  height:auto;
+  scroll-snap-align:center;
+}
+@media(min-width:560px){ body.home-snap .proj-card{ flex-basis:46vw; } }
+@media(min-width:900px){ body.home-snap .proj-card{ flex-basis:320px; } }
+@media(min-width:1400px){ body.home-snap .proj-card{ flex-basis:360px; } }
+
+/* 4 — Closing call to action ------------------------------------ */
+body.home-snap .cta-band{ padding-block:clamp(88px,13vh,130px) clamp(72px,11vh,120px); }
+
+/* Short / landscape screens: never force a section taller than it needs */
+@media (max-height:600px){
+  body.home-snap main > section{ min-height:0; }
+  body.home-snap .hero{ min-height:calc(100svh - clamp(104px,13vh,132px)); }
+  body.home-snap .proj-grid{ height:clamp(300px, 70svh, 420px); }
+}
