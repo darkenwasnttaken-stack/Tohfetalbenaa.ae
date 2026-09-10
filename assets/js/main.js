@@ -111,33 +111,39 @@
   var reveals = document.querySelectorAll('.reveal');
   var revealReplay = document.body.classList.contains('home-snap');
   if('IntersectionObserver' in window && reveals.length){
+    /* IN: add .in once the element is a little way into view */
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
+        if(!en.isIntersecting) return;
         var el = en.target;
-        if(en.isIntersecting){
-          var parent = el.parentNode;
-          if(parent){
-            var sibs = parent.querySelectorAll(':scope > .reveal');
-            var idx = Array.prototype.indexOf.call(sibs, el);
-            el.style.transitionDelay = (idx > 0 && sibs.length > 1) ? (Math.min(idx, 4) * 75) + 'ms' : '';
-          }
-          el.classList.add('in');
-          if(!revealReplay){
-            io.unobserve(el);
-            setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 900);
-          }
-        } else if(revealReplay && !el.classList.contains('proj-card')){
-          /* reset to hidden only once it's genuinely off-screen, so it plays
-             again on the way back — and never flickers while still in view */
-          var r = el.getBoundingClientRect();
-          if(r.bottom < -16 || r.top > (window.innerHeight || 0) + 16){
-            el.classList.remove('in');
-            el.style.transitionDelay = '';
-          }
+        var parent = el.parentNode;
+        if(parent){
+          var sibs = parent.querySelectorAll(':scope > .reveal');
+          var idx = Array.prototype.indexOf.call(sibs, el);
+          el.style.transitionDelay = (idx > 0 && sibs.length > 1) ? (Math.min(idx, 4) * 75) + 'ms' : '';
+        }
+        el.classList.add('in');
+        if(!revealReplay){
+          io.unobserve(el);
+          setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 900);
         }
       });
     }, {threshold:0.05, rootMargin:'0px 0px -80px 0px'});
     reveals.forEach(function(el){ io.observe(el); });
+
+    /* OUT (homepage only): a second observer with no margin — when it reports
+       the element is 0% visible it is genuinely off-screen, so reset it to
+       hidden and it will animate again next time it comes back, up or down. */
+    if(revealReplay){
+      var ioOut = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+          if(en.isIntersecting) return;
+          en.target.classList.remove('in');
+          en.target.style.transitionDelay = '';
+        });
+      }, {threshold:0});
+      reveals.forEach(function(el){ ioOut.observe(el); });
+    }
   } else {
     reveals.forEach(function(el){ el.classList.add('in'); });
   }
