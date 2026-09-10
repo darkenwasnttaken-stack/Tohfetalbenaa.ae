@@ -1263,7 +1263,8 @@ body.home-snap .strip-nav{ display:none; }
   body.home-snap .proj-grid{
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);
             mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);
-    transition:-webkit-mask-image .45s linear, mask-image .45s linear;
+    /* no transition on the mask — animating a gradient mask isn't
+       GPU-accelerated and added judder to the button scroll */
   }
   body.home-snap .proj-grid.at-start{
     -webkit-mask-image:linear-gradient(90deg,#000 0,#000 93%,transparent 100%);

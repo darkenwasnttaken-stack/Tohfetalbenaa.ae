@@ -258,6 +258,16 @@
       var prevBtn = nav.querySelector('[data-dir="prev"]');
       var nextBtn = nav.querySelector('[data-dir="next"]');
 
+      /* Pre-load and decode every card image up front. They're small
+         thumbnails, and without this the first scroll toward an unseen card
+         stalls on that image's load/decode — which is why moving one way
+         felt smooth and the other way lagged. */
+      strip.querySelectorAll('img').forEach(function(img){
+        img.loading = 'eager';
+        if (!img.complete && img.getAttribute('src')) img.src = img.src;   /* kick lazy ones */
+        if (img.decode) { try { img.decode().catch(function(){}); } catch(e){} }
+      });
+
       var stripStep = function(){
         var card = strip.querySelector('.proj-card');
         var w = (card ? card.getBoundingClientRect().width : 306) + 14;
@@ -269,8 +279,8 @@
         var atStart = sl <= 1, atEnd = sl >= max;
         strip.classList.toggle('at-start', atStart);
         strip.classList.toggle('at-end', atEnd);
-        prevBtn.disabled = atStart;
-        nextBtn.disabled = atEnd;
+        if (prevBtn.disabled !== atStart) prevBtn.disabled = atStart;
+        if (nextBtn.disabled !== atEnd) nextBtn.disabled = atEnd;
       };
 
       /* Custom scroll for the arrow buttons — a smooth ease-in-out glide
