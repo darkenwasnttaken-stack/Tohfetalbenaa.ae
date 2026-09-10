@@ -273,11 +273,11 @@
         nextBtn.disabled = atEnd;
       };
 
-      /* Custom snappy scroll — the browser's native "smooth" is too slow and
-         drifty for card-to-card nav. ~240ms, ease-out-quart: quick to move,
-         decisive to settle. The target is snapped onto the card grid so the
-         proximity-snap never adds a slow tail afterwards. Instant under
-         reduced-motion. */
+      /* Custom scroll for the arrow buttons — a smooth ease-in-out glide
+         (~0.4-0.55s, scaled by distance) that lands on the card grid so the
+         proximity-snap adds no tail afterwards. Faster and cleaner than the
+         browser's native "smooth", without the yank of a hard ease-out.
+         Instant under reduced-motion. */
       var stripReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var stripAnim = null;
       var scrollStripBy = function(delta){
@@ -295,14 +295,20 @@
           strip.scrollLeft = to; syncStrip(); return;
         }
         if (stripAnim) cancelAnimationFrame(stripAnim);
-        var t0 = null, dur = 240;
+        /* Turn CSS scroll-snap OFF for the duration — otherwise the browser
+           re-snaps every per-frame scrollLeft write and the glide turns into
+           a stutter/jump. The target is already snap-aligned, so restoring
+           snap at the end is seamless. Ease-out: moves immediately, glides to
+           a stop, no crawling tail. */
+        strip.style.scrollSnapType = 'none';
+        var t0 = null, dur = Math.min(520, 320 + Math.abs(dist) * 0.22);
         var step = function(ts){
           if (t0 === null) t0 = ts;
           var p = (ts - t0) / dur; if (p > 1) p = 1;
-          var e = 1 - Math.pow(1 - p, 4);
+          var e = 1 - Math.pow(1 - p, 3);   /* easeOutCubic */
           strip.scrollLeft = from + dist * e;
-          if (p < 1) stripAnim = requestAnimationFrame(step);
-          else { stripAnim = null; syncStrip(); }
+          if (p < 1){ stripAnim = requestAnimationFrame(step); }
+          else { stripAnim = null; strip.style.scrollSnapType = ''; syncStrip(); }
         };
         stripAnim = requestAnimationFrame(step);
       };
