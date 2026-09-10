@@ -908,34 +908,47 @@ body.home-snap .hero{
   min-height:calc(100svh - clamp(104px, 13vh, 132px));
   justify-content:center;
 }
-/* Anchor the text to the lower third of the frame so the upper part of the
-   hero is the villa photograph itself, not an empty navy band. The gradient
-   just below keeps the headline and buttons legible where they actually sit. */
+/* Span the frame: the headline sits at the top just under the header, the
+   description + buttons are pushed to the floor, and the villa photo fills
+   the space between them. No centred block, no empty band anywhere. */
 body.home-snap .hero-inner{
   flex:1;
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
+  justify-content:flex-start;
   padding-bottom:clamp(86px, 15vh, 140px);   /* room above the pinned scroll cue */
 }
-body.home-snap .hero-photo-wrap img{ opacity:.85; }
-/* phone / tablet: let the top of the photo read clearly, ramp to solid navy
-   behind the text block near the bottom */
+body.home-snap .hero-kicker{ margin-bottom:clamp(14px, 2.4vh, 22px); }
+body.home-snap .hero-sub{ margin-top:auto; }   /* shove description + CTAs to the bottom */
+
+/* Show the architecture rather than the sky, and let it read strong. */
+body.home-snap .hero-photo-wrap img{
+  opacity:.92;
+  object-position:56% 68%;
+  transform:scale(1.16);
+}
+@media(min-width:1121px){
+  body.home-snap .hero-photo-wrap img{ object-position:64% 46%; transform:scale(1.1); }
+}
+/* Gradient darkens at BOTH ends now (headline up top, CTAs at the bottom)
+   and stays light through the middle where the building shows. */
 body.home-snap .hero-bg::after,
 html[dir="rtl"] body.home-snap .hero-bg::after{
   background:linear-gradient(180deg,
-    rgba(8,17,33,.10) 0%,
-    rgba(8,17,33,.14) 32%,
-    rgba(8,17,33,.58) 60%,
-    rgba(8,17,33,.90) 82%,
+    rgba(8,17,33,.72) 0%,
+    rgba(8,17,33,.38) 16%,
+    rgba(8,17,33,.16) 34%,
+    rgba(8,17,33,.20) 50%,
+    rgba(8,17,33,.60) 72%,
+    rgba(8,17,33,.92) 86%,
     rgba(8,17,33,.98) 100%);
 }
 @media(min-width:1121px){
   body.home-snap .hero-bg::after,
   html[dir="rtl"] body.home-snap .hero-bg::after{
     background:
-      linear-gradient(100deg, rgba(8,17,33,.94) 0%, rgba(8,17,33,.66) 34%, rgba(8,17,33,.18) 62%, rgba(8,17,33,.34) 100%),
-      linear-gradient(180deg, rgba(8,17,33,0) 26%, rgba(8,17,33,.42) 60%, rgba(8,17,33,.96) 100%);
+      linear-gradient(100deg, rgba(8,17,33,.92) 0%, rgba(8,17,33,.6) 36%, rgba(8,17,33,.16) 64%, rgba(8,17,33,.32) 100%),
+      linear-gradient(180deg, rgba(8,17,33,.35) 0%, rgba(8,17,33,.1) 34%, rgba(8,17,33,.4) 66%, rgba(8,17,33,.96) 100%);
   }
 }
 body.home-snap .hero .scroll-cue{
