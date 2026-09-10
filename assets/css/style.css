@@ -541,31 +541,32 @@ html[dir="rtl"] .legacy-stat .num{font-weight:800;}
   backface-visibility:hidden;
 }
 
-/* Capabilities image animation: each photo wipes + fades in from its outer
-   edge as the media enters view (and again on the way back), then holds a
-   gentle parallax drift (drift + hover zoom eased in main.js). The clip is
-   on the <img>, not .svc-media, so the observer can still see .svc-media.
-   The revealed state is the default; :not(.in) defines the hidden state. */
-html.js .svc-media img{
-  clip-path:inset(0 0 0 0);
-  transition:clip-path 1.25s cubic-bezier(.16,.75,.2,1), opacity .95s ease;
+/* Capabilities image animation: the photo panel slides + fades into place as
+   it enters view (and again on the way back) — from the LEFT on odd rows,
+   from the RIGHT on even rows, so the direction visibly alternates down the
+   page. The parallax drift + hover zoom live on the <img> inside (eased in
+   main.js), independent of this container transform. Revealed = default;
+   :not(.in) is the hidden state. */
+html.js .svc-media{
+  transform:translateX(0);
+  opacity:1;
+  transition:transform 1s cubic-bezier(.16,.78,.22,1), opacity .8s ease;
 }
-html.js .svc-media:not(.in) img{
-  clip-path:inset(0 100% 0 0);           /* odd rows: image on the left, wipe L->R */
+html.js .svc-media:not(.in){
+  transform:translateX(-7%);             /* odd rows enter from the left */
   opacity:0;
 }
-html.js .svc-row:nth-child(even) .svc-media:not(.in) img{
-  clip-path:inset(0 0 0 100%);           /* even rows: image on the right, wipe R->L */
-}
-@media(max-width:822px){
-  html.js .svc-row:nth-child(even) .svc-media:not(.in) img{clip-path:inset(0 100% 0 0);}
+html.js .svc-row:nth-child(even) .svc-media:not(.in){
+  transform:translateX(7%);              /* even rows enter from the right */
 }
 @media (prefers-reduced-motion: reduce){
-  html.js .svc-media img,
-  html.js .svc-media:not(.in) img,
-  html.js .svc-row:nth-child(even) .svc-media:not(.in) img{clip-path:none;opacity:1;transition:none;}
+  html.js .svc-media,
+  html.js .svc-media:not(.in),
+  html.js .svc-row:nth-child(even) .svc-media:not(.in){transform:none;opacity:1;transition:none;}
   .svc-media img{--py:0px;--sc:1;}
 }
+/* the slide-in offset must never spill a horizontal scrollbar */
+section:has(> .svc-row){overflow-x:clip;}
 .svc-copy{padding:54px var(--gutter);display:flex;flex-direction:column;justify-content:center;}
 .svc-index{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--gold);margin-bottom:14px;}
 html[dir="rtl"] .svc-index{font-family:var(--font-body);font-weight:700;font-style:normal;}
