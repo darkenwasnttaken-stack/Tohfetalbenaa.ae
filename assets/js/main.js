@@ -3,6 +3,11 @@
 
   document.documentElement.classList.add('js');
 
+  /* The <head> failsafe force-reveals everything after a long delay in case
+     this file never loads. It has, so cancel it now and let the scroll
+     observer below do the reveals as designed. */
+  if (window.__revealFailsafe) { clearTimeout(window.__revealFailsafe); window.__revealFailsafe = null; }
+
   /* Reveal-on-scroll content is guaranteed visible no matter what: it's only
      hidden under html.js, and if anything below throws before the observer is
      wired up, this catch reveals everything immediately. */
@@ -93,14 +98,32 @@
     });
   }
 
-  /* Reveal on scroll */
+  /* Reveal on scroll. The negative bottom margin holds the reveal until the
+     element is a little way into the viewport, so the fade/rise is actually
+     seen playing rather than finishing off-screen. Items that share a row
+     (grid/flex siblings) get a short stagger so they cascade in. */
   var reveals = document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window && reveals.length){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
-        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+        if(!en.isIntersecting) return;
+        var el = en.target;
+        io.unobserve(el);
+        var parent = el.parentNode;
+        if(parent){
+          var sibs = parent.querySelectorAll(':scope > .reveal');
+          var idx = Array.prototype.indexOf.call(sibs, el);
+          if(idx > 0 && sibs.length > 1){
+            var d = Math.min(idx, 4) * 75;
+            el.style.transitionDelay = d + 'ms';
+            /* drop the delay once the reveal has played so it can't slow a
+               later transition (card hover, etc.) on the same element */
+            setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), d + 900);
+          }
+        }
+        el.classList.add('in');
       });
-    }, {threshold:0.02, rootMargin:'0px 0px -10px 0px'});
+    }, {threshold:0.05, rootMargin:'0px 0px -80px 0px'});
     reveals.forEach(function(el){ io.observe(el); });
   } else {
     reveals.forEach(function(el){ el.classList.add('in'); });
