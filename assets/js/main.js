@@ -109,9 +109,10 @@
      view it resets to hidden, so it animates again on the way back (up or
      down). Elsewhere it plays once and is left alone. */
   var reveals = document.querySelectorAll('.reveal');
-  var revealReplay = document.body.classList.contains('home-snap');
   if('IntersectionObserver' in window && reveals.length){
-    /* IN: add .in once the element is a little way into view */
+    /* IN: add .in once the element is a little way into view. Grouped
+       siblings get a stagger; the stagger delay is dropped ~1s later so it
+       can't slow any later transition on the same element. */
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
         if(!en.isIntersecting) return;
@@ -120,30 +121,27 @@
         if(parent){
           var sibs = parent.querySelectorAll(':scope > .reveal');
           var idx = Array.prototype.indexOf.call(sibs, el);
-          el.style.transitionDelay = (idx > 0 && sibs.length > 1) ? (Math.min(idx, 4) * 75) + 'ms' : '';
+          if(idx > 0 && sibs.length > 1){
+            el.style.transitionDelay = (Math.min(idx, 4) * 75) + 'ms';
+            setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 1000);
+          }
         }
         el.classList.add('in');
-        if(!revealReplay){
-          io.unobserve(el);
-          setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 900);
-        }
       });
     }, {threshold:0.05, rootMargin:'0px 0px -80px 0px'});
     reveals.forEach(function(el){ io.observe(el); });
 
-    /* OUT (homepage only): a second observer with no margin — when it reports
-       the element is 0% visible it is genuinely off-screen, so reset it to
-       hidden and it will animate again next time it comes back, up or down. */
-    if(revealReplay){
-      var ioOut = new IntersectionObserver(function(entries){
-        entries.forEach(function(en){
-          if(en.isIntersecting) return;
-          en.target.classList.remove('in');
-          en.target.style.transitionDelay = '';
-        });
-      }, {threshold:0});
-      reveals.forEach(function(el){ ioOut.observe(el); });
-    }
+    /* OUT: a second observer with no margin — when it reports the element is
+       0% visible it is genuinely off-screen, so reset it to hidden and it
+       animates again the next time it scrolls into view, up or down. */
+    var ioOut = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting) return;
+        en.target.classList.remove('in');
+        en.target.style.transitionDelay = '';
+      });
+    }, {threshold:0});
+    reveals.forEach(function(el){ ioOut.observe(el); });
   } else {
     reveals.forEach(function(el){ el.classList.add('in'); });
   }
@@ -152,7 +150,7 @@
      (i.e. also when you scroll back up to the top), via `.is-in` on .hero.
      Arms when the hero is meaningfully visible; only disarms once it's
      completely gone, so the exit is never seen mid-scroll. */
-  if(revealReplay){
+  if(document.body.classList.contains('home-snap')){
     var heroEl = document.querySelector('.hero');
     if(heroEl && 'IntersectionObserver' in window){
       new IntersectionObserver(function(es){

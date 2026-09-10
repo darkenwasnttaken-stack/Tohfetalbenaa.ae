@@ -470,8 +470,14 @@ html[dir="rtl"] .hero-bg::after{
 /* reveal-on-scroll — only hidden once JS is confirmed running (html.js), so a
    script that fails to load or errors never leaves content permanently blank.
    A <head> failsafe force-reveals anything still hidden after ~9s, but only
-   if main.js never loads (it cancels the failsafe as soon as it runs). */
-html.js .reveal{opacity:0;transform:translateY(30px);transition:opacity .62s var(--ease), transform .62s var(--ease);}
+   if main.js never loads (it cancels the failsafe as soon as it runs).
+   main.js re-arms these when an element scrolls fully out of view, so the
+   fade + rise plays again every time it comes back — on every page. */
+html.js .reveal{
+  opacity:0;
+  transform:translateY(36px) scale(.99);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
 html.js .reveal.in{opacity:1;transform:none;}
 @media (prefers-reduced-motion: reduce){
   html.js .reveal{opacity:1;transform:none;transition:none;}
@@ -1157,14 +1163,3 @@ body.home-snap .cta-band{ padding-block:clamp(88px,13vh,130px) clamp(72px,11vh,1
   body.home-snap .proj-grid{ height:clamp(300px, 70svh, 420px); }
 }
 
-/* Homepage scroll reveals — a touch more travel + a hair of scale so each
-   section settling into place reads as a deliberate move, not just a fade.
-   Grouped siblings still cascade (stagger set in main.js). */
-html.js body.home-snap .reveal{
-  transform:translateY(38px) scale(.985);
-  transition:opacity .72s var(--ease), transform .72s var(--ease);
-}
-html.js body.home-snap .reveal.in{ transform:none; }
-@media (prefers-reduced-motion: reduce){
-  html.js body.home-snap .reveal{ transform:none; transition:none; }
-}
