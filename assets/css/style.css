@@ -908,13 +908,35 @@ body.home-snap .hero{
   min-height:calc(100svh - clamp(104px, 13vh, 132px));
   justify-content:center;
 }
-/* fill the hero so the centred text group and the pinned scroll cue have
-   the full screen to work with */
+/* Anchor the text to the lower third of the frame so the upper part of the
+   hero is the villa photograph itself, not an empty navy band. The gradient
+   just below keeps the headline and buttons legible where they actually sit. */
 body.home-snap .hero-inner{
   flex:1;
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:flex-end;
+  padding-bottom:clamp(86px, 15vh, 140px);   /* room above the pinned scroll cue */
+}
+body.home-snap .hero-photo-wrap img{ opacity:.85; }
+/* phone / tablet: let the top of the photo read clearly, ramp to solid navy
+   behind the text block near the bottom */
+body.home-snap .hero-bg::after,
+html[dir="rtl"] body.home-snap .hero-bg::after{
+  background:linear-gradient(180deg,
+    rgba(8,17,33,.10) 0%,
+    rgba(8,17,33,.14) 32%,
+    rgba(8,17,33,.58) 60%,
+    rgba(8,17,33,.90) 82%,
+    rgba(8,17,33,.98) 100%);
+}
+@media(min-width:1121px){
+  body.home-snap .hero-bg::after,
+  html[dir="rtl"] body.home-snap .hero-bg::after{
+    background:
+      linear-gradient(100deg, rgba(8,17,33,.94) 0%, rgba(8,17,33,.66) 34%, rgba(8,17,33,.18) 62%, rgba(8,17,33,.34) 100%),
+      linear-gradient(180deg, rgba(8,17,33,0) 26%, rgba(8,17,33,.42) 60%, rgba(8,17,33,.96) 100%);
+  }
 }
 body.home-snap .hero .scroll-cue{
   display:flex;
