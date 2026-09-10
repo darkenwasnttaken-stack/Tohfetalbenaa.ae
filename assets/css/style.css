@@ -642,11 +642,8 @@ html.js .page-projects article.two-col:not(.in):nth-of-type(even) .proj-detail-m
    off .in */
 html.js .page-projects article.two-col.reveal{opacity:1;transform:none;}
 
-@media(max-width:760px){
-  html.js .page-projects article.two-col:not(.in):nth-of-type(even) .proj-detail-media{
-    clip-path:inset(0 100% 0 0);
-  }
-}
+/* the wipe alternates at every width — even on the stacked mobile / tablet
+   layout the odd/even reveal edges give the list its rhythm */
 @media (prefers-reduced-motion: reduce){
   html.js .page-projects .proj-detail-media,
   html.js .page-projects article.two-col:not(.in) .proj-detail-media,
