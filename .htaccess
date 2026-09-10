@@ -29,6 +29,18 @@ RedirectMatch 403 (?i)^/(config|lib|storage|vendor|\.git)(/|$)
   Require all denied
 </Files>
 
+# ---- Canonical host + HTTPS ------------------------------------------
+# Serve everything from ONE origin: https://tohfetalbenaa.ae/...
+# Without this, http:// and www. copies stay reachable with a 200 and
+# Google indexes them as separate duplicates of every page. Runs BEFORE
+# the clean-URL rules so it fires on the raw external request.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off [OR]
+  RewriteCond %{HTTP_HOST} ^www\.tohfetalbenaa\.ae$ [NC]
+  RewriteRule ^ https://tohfetalbenaa.ae%{REQUEST_URI} [R=301,L]
+</IfModule>
+
 # ---- Clean URLs: /about instead of /about.html --------------------------
 # 1. Send any direct *.html request to its extensionless URL (301, canonical).
 # 2. Serve the matching .html file for an extensionless request.
@@ -55,14 +67,6 @@ RedirectMatch 403 (?i)^/(config|lib|storage|vendor|\.git)(/|$)
   RewriteCond %{DOCUMENT_ROOT}/$1.html -f
   RewriteRule ^(.+?)/?$ /$1.html [L]
 </IfModule>
-
-# ---- Optional: force HTTPS + canonical host (uncomment after go-live) -----
-# <IfModule mod_rewrite.c>
-#   RewriteEngine On
-#   RewriteCond %{HTTPS} off [OR]
-#   RewriteCond %{HTTP_HOST} ^www\.tohfetalbenaa\.ae$ [NC]
-#   RewriteRule ^ https://tohfetalbenaa.ae%{REQUEST_URI} [R=301,L]
-# </IfModule>
 
 # ---- Static asset caching ----------------------------------------------
 <IfModule mod_expires.c>
