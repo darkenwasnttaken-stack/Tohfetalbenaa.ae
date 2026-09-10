@@ -261,9 +261,7 @@
       var stripStep = function(){
         var card = strip.querySelector('.proj-card');
         var w = (card ? card.getBoundingClientRect().width : 306) + 14;
-        /* ~1.6 cards per click: enough to feel like real progress, small
-           enough that it always takes a few clicks to reach the end */
-        return Math.round(w * 1.6);
+        return Math.round(w * 2);   /* ~two cards per click */
       };
       var syncStrip = function(){
         var max = strip.scrollWidth - strip.clientWidth - 1;
@@ -275,13 +273,45 @@
         nextBtn.disabled = atEnd;
       };
 
+      /* Custom snappy scroll — the browser's native "smooth" is too slow and
+         drifty for card-to-card nav. ~240ms, ease-out-quart: quick to move,
+         decisive to settle. The target is snapped onto the card grid so the
+         proximity-snap never adds a slow tail afterwards. Instant under
+         reduced-motion. */
+      var stripReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var stripAnim = null;
+      var scrollStripBy = function(delta){
+        var cs = getComputedStyle(strip);
+        var card = strip.querySelector('.proj-card');
+        var cw = card ? card.getBoundingClientRect().width : 306;
+        var pitch = cw + (parseFloat(cs.columnGap || cs.gap) || 14);
+        var base = (parseFloat(cs.paddingLeft) || 0) + cw / 2 - strip.clientWidth / 2;
+        var maxSL = strip.scrollWidth - strip.clientWidth;
+        var from = strip.scrollLeft;
+        var snapped = base + Math.round((from + delta - base) / pitch) * pitch;
+        var to = Math.max(0, Math.min(snapped, maxSL));
+        var dist = to - from;
+        if (stripReduce || Math.abs(dist) < 1 || !('requestAnimationFrame' in window)){
+          strip.scrollLeft = to; syncStrip(); return;
+        }
+        if (stripAnim) cancelAnimationFrame(stripAnim);
+        var t0 = null, dur = 240;
+        var step = function(ts){
+          if (t0 === null) t0 = ts;
+          var p = (ts - t0) / dur; if (p > 1) p = 1;
+          var e = 1 - Math.pow(1 - p, 4);
+          strip.scrollLeft = from + dist * e;
+          if (p < 1) stripAnim = requestAnimationFrame(step);
+          else { stripAnim = null; syncStrip(); }
+        };
+        stripAnim = requestAnimationFrame(step);
+      };
+
       nav.addEventListener('click', function(e){
         var b = e.target.closest('.strip-btn');
         if (!b) return;
         var amt = stripStep() * (b.getAttribute('data-dir') === 'next' ? 1 : -1) * (stripRtl ? -1 : 1);
-        strip.scrollBy({ left: amt, behavior: 'smooth' });
-        setTimeout(syncStrip, 60);     // in case the smooth scroll is instant / throttled
-        setTimeout(syncStrip, 550);    // after it settles
+        scrollStripBy(amt);
       });
 
       var stripRaf = null;
