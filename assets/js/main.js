@@ -146,55 +146,65 @@
     reveals.forEach(function(el){ el.classList.add('in'); });
   }
 
-  /* Capabilities page — service photos: wipe-in reveal (replays) + a gentle
-     scroll parallax on the image itself. */
-  var svcMedia = document.querySelectorAll('.svc-media');
-  if(svcMedia.length){
-    /* observe the ROW, not the media — the media clips itself to zero width
-       before it reveals, and a zero-area target never reports intersecting */
+  /* Editorial photo motion — Capabilities service rows and the Projects page
+     detail images: each photo wipes in (direction alternates down the page,
+     handled in CSS by `.in` on the row / article) plus an eased scroll
+     parallax and hover zoom. */
+  var mediaBoxes = [].slice.call(
+    document.querySelectorAll('.svc-media, .page-projects .proj-detail-media')
+  );
+  if(mediaBoxes.length){
+    /* Capabilities rows need their own observer: the media clips itself to a
+       zero-area box before it reveals, so it can never report as intersecting.
+       Projects articles already carry `.reveal`, so the generic observer
+       above toggles their `.in`. */
     var svcRows = document.querySelectorAll('.svc-row');
-    if('IntersectionObserver' in window){
-      var svcIO = new IntersectionObserver(function(es){
-        es.forEach(function(e){ e.target.classList.toggle('in', e.isIntersecting); });
-      }, {threshold:0.22});
-      svcRows.forEach(function(row){ svcIO.observe(row); });
-    } else {
-      svcRows.forEach(function(row){ row.classList.add('in'); });
+    if(svcRows.length){
+      if('IntersectionObserver' in window){
+        var svcIO = new IntersectionObserver(function(es){
+          es.forEach(function(e){ e.target.classList.toggle('in', e.isIntersecting); });
+        }, {threshold:0.22});
+        svcRows.forEach(function(row){ svcIO.observe(row); });
+      } else {
+        svcRows.forEach(function(row){ row.classList.add('in'); });
+      }
     }
 
-    var svcReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(!svcReduce && 'requestAnimationFrame' in window){
-      /* Per-frame eased parallax + hover zoom. Each image's --py and --sc are
-         lerped toward their targets every frame, so the motion is smooth and
-         trails the scroll naturally instead of snapping or chasing a CSS
-         transition. One rAF loop for the four images — trivially cheap, and
-         the browser pauses it while the tab is hidden. */
-      var SVC_BASE = 1.2, SVC_HOVER = 1.27, SVC_RANGE = 24;
-      var svcItems = [];
-      for(var si = 0; si < svcMedia.length; si++){
-        var im = svcMedia[si].firstElementChild;
-        if(im) svcItems.push({ box: svcMedia[si], img: im, py: 0, tpy: 0, sc: SVC_BASE, tsc: SVC_BASE });
-      }
-      svcItems.forEach(function(it){
-        var row = it.box.closest ? it.box.closest('.svc-row') : it.box.parentNode;
-        if(!row) return;
-        row.addEventListener('pointerenter', function(){ it.tsc = SVC_HOVER; });
-        row.addEventListener('pointerleave', function(){ it.tsc = SVC_BASE; });
-      });
-      (function svcTick(){
-        var vh = window.innerHeight || 1;
-        for(var i = 0; i < svcItems.length; i++){
-          var it = svcItems[i], r = it.box.getBoundingClientRect();
-          if(r.bottom > -120 && r.top < vh + 120){
-            it.tpy = ((r.top + r.height / 2 - vh / 2) / vh) * -SVC_RANGE;
-          }
-          it.py += (it.tpy - it.py) * 0.08;   /* trail the scroll */
-          it.sc += (it.tsc - it.sc) * 0.11;    /* ease the hover zoom */
-          it.img.style.setProperty('--py', it.py.toFixed(2) + 'px');
-          it.img.style.setProperty('--sc', it.sc.toFixed(4));
+    var mReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!mReduce && 'requestAnimationFrame' in window){
+      /* --py (parallax) and --sc (hover zoom) are lerped toward their targets
+         every frame, so the motion trails the scroll smoothly instead of
+         snapping or chasing a CSS transition. One rAF loop for all of them. */
+      var M_BASE = 1.2, M_HOVER = 1.27, M_RANGE = 20;
+      var mItems = [];
+      mediaBoxes.forEach(function(box){
+        var img = box.firstElementChild;
+        if(!img || img.tagName !== 'IMG') return;
+        if(getComputedStyle(img).objectFit === 'contain') return;   /* leave letterboxed photos still */
+        var it = { box: box, img: img, py: 0, tpy: 0, sc: M_BASE, tsc: M_BASE };
+        mItems.push(it);
+        var row = box.closest('.svc-row, article');
+        if(row){
+          row.addEventListener('pointerenter', function(){ it.tsc = M_HOVER; });
+          row.addEventListener('pointerleave', function(){ it.tsc = M_BASE; });
         }
-        requestAnimationFrame(svcTick);
-      })();
+      });
+      if(mItems.length){
+        (function mTick(){
+          var vh = window.innerHeight || 1;
+          for(var i = 0; i < mItems.length; i++){
+            var it = mItems[i], r = it.box.getBoundingClientRect();
+            if(r.bottom > -140 && r.top < vh + 140){
+              it.tpy = ((r.top + r.height / 2 - vh / 2) / vh) * -M_RANGE;
+            }
+            it.py += (it.tpy - it.py) * 0.08;   /* trail the scroll */
+            it.sc += (it.tsc - it.sc) * 0.11;   /* ease the hover zoom */
+            it.img.style.setProperty('--py', it.py.toFixed(2) + 'px');
+            it.img.style.setProperty('--sc', it.sc.toFixed(4));
+          }
+          requestAnimationFrame(mTick);
+        })();
+      }
     }
   }
 
