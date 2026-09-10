@@ -163,7 +163,7 @@ disabled.
    Any `false` points at the step to revisit. *(You can delete the health
    block from `contact-handler.php` after setup if you prefer — search for
    `?health` in that file.)*
-5. **Send a real test** from `https://tohfetalbenaa.ae/contact.html`. You should
+5. **Send a real test** from `https://tohfetalbenaa.ae/contact`. You should
    see the green success message and the email should land in `info@`.
 6. If it fails: set `TAB_MAIL_DEBUG=true` in `.env`, submit again, read
    `storage/mail.log` for the SMTP transcript, then set it back to `false`.

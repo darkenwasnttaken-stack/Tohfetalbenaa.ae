@@ -260,7 +260,7 @@ try {
     ];
     $meta = [
         'Submitted'  => gmdate('Y-m-d H:i:s') . ' UTC',
-        'Form'       => $lang === 'ar' ? 'Arabic (/ar/contact.html)' : 'English (/contact.html)',
+        'Form'       => $lang === 'ar' ? 'Arabic (/ar/contact)' : 'English (/contact)',
         'IP'         => mask_ip($ip),
         'User agent' => clean_line($_SERVER['HTTP_USER_AGENT'] ?? '—', 280),
     ];
@@ -314,7 +314,7 @@ function finish(bool $ok, string $message, int $status, string $lang, array $T, 
     $dir    = $lang === 'ar' ? 'rtl' : 'ltr';
     $accent = $ok ? '#1f7a44' : '#c0392b';
     $title  = $ok ? $T['title_ok'] : $T['title_err'];
-    $back   = $lang === 'ar' ? '/ar/contact.html' : '/contact.html';
+    $back   = $lang === 'ar' ? '/ar/contact' : '/contact';
 
     $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
     $msg   = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');

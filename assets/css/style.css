@@ -92,7 +92,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 html[dir="rtl"] .skip-link{left:auto;right:12px;}
 
 /* Fixed header is ~97px tall; give in-page anchor targets clearance so a jump
-   (e.g. a homepage project card -> projects.html#villa-...) doesn't land the
+   (e.g. a homepage project card -> /projects#villa-...) doesn't land the
    heading hidden under the header. */
 :target,#main{scroll-margin-top:110px;}
 @media(max-width:640px){:target,#main{scroll-margin-top:88px;}}
