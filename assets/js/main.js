@@ -18,6 +18,8 @@
     if (hero) hero.classList.add('is-in');   /* homepage hero entrance state */
     var heroHeadFB = document.querySelector('.hero .hero-stack');
     if (heroHeadFB) heroHeadFB.classList.add('head-in');
+    var heroSubFB = document.querySelector('.hero .hero-sub');
+    if (heroSubFB) heroSubFB.classList.add('sub-in');
   }
 
   /* Stamp the current year into any .cyr element (footer copyright) so it never
@@ -230,13 +232,17 @@
   if(document.body.classList.contains('home-snap')){
     var heroEl = document.querySelector('.hero');
     var heroHead = document.querySelector('.hero .hero-stack');
+    var heroSub = document.querySelector('.hero .hero-sub');
     if(heroEl && 'IntersectionObserver' in window){
-      /* Master state (photo / kicker / description / scroll cue): tracks the
-         whole section -- armed when it's the live snap section, reset only
-         once it's completely gone so the exit is never seen mid-scroll. */
+      /* Master state (kicker / description / scroll cue): armed as soon as
+         the hero is meaningfully in view so nothing sits blank while it's
+         partly on screen, reset only once it's completely gone so the exit
+         is never seen mid-scroll. Split arm/disarm observers, each on its
+         own single threshold, so a fast snap-scroll can't park it in a
+         dead zone (that was the "doesn't replay" bug). */
       new IntersectionObserver(function(es){
-        es.forEach(function(e){ if(e.intersectionRatio >= 0.5) heroEl.classList.add('is-in'); });
-      }, {threshold:[0.5]}).observe(heroEl);
+        es.forEach(function(e){ if(e.intersectionRatio >= 0.12) heroEl.classList.add('is-in'); });
+      }, {threshold:[0.12]}).observe(heroEl);
       new IntersectionObserver(function(es){
         es.forEach(function(e){ if(!e.isIntersecting) heroEl.classList.remove('is-in'); });
       }, {threshold:0}).observe(heroEl);
@@ -253,9 +259,22 @@
           es.forEach(function(e){ if(!e.isIntersecting) heroHead.classList.remove('head-in'); });
         }, {threshold:0}).observe(heroHead);
       }
+      /* Description + CTAs sit at the bottom of the section, so scrolling
+         up they're the first thing you reach -- key their reveal to when
+         THAT band is actually in view (not the section as a whole) so it
+         lands as you get to it instead of trailing 1s behind. */
+      if(heroSub){
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ if(e.intersectionRatio >= 0.55) heroSub.classList.add('sub-in'); });
+        }, {threshold:[0.55]}).observe(heroSub);
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ if(!e.isIntersecting) heroSub.classList.remove('sub-in'); });
+        }, {threshold:0}).observe(heroSub);
+      }
     } else if(heroEl){
       heroEl.classList.add('is-in');
       if(heroHead) heroHead.classList.add('head-in');
+      if(heroSub) heroSub.classList.add('sub-in');
     }
   }
 
@@ -295,11 +314,6 @@
         if (img.decode) { try { img.decode().catch(function(){}); } catch(e){} }
       });
 
-      var stripStep = function(){
-        var card = strip.querySelector('.proj-card');
-        var w = (card ? card.getBoundingClientRect().width : 306) + 14;
-        return Math.round(w * 2);   /* ~two cards per click */
-      };
       var syncStrip = function(){
         var max = strip.scrollWidth - strip.clientWidth - 1;
         var sl = Math.abs(strip.scrollLeft);
@@ -317,16 +331,27 @@
          Instant under reduced-motion. */
       var stripReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var stripAnim = null;
-      var scrollStripBy = function(delta){
+      /* `dir`: +1 = toward the end of the list, -1 = toward the start --
+         independent of writing direction. All the maths runs in a logical
+         space where 0 is the start and +maxSL the end; only the final
+         write is mapped back to `scrollLeft`, which every current browser
+         reports as 0..-maxSL when the container is RTL. Working in raw
+         `scrollLeft` (as before) meant every RTL target was clamped to 0,
+         so the Arabic strip never moved. */
+      var scrollStripBy = function(dir){
         var cs = getComputedStyle(strip);
         var card = strip.querySelector('.proj-card');
         var cw = card ? card.getBoundingClientRect().width : 306;
         var pitch = cw + (parseFloat(cs.columnGap || cs.gap) || 14);
         var base = (parseFloat(cs.paddingLeft) || 0) + cw / 2 - strip.clientWidth / 2;
         var maxSL = strip.scrollWidth - strip.clientWidth;
+        var sign = stripRtl ? -1 : 1;
+        var fromLogical = Math.abs(strip.scrollLeft);
+        var delta = dir * pitch * 2;   /* ~two cards per click */
+        var snapped = base + Math.round((fromLogical + delta - base) / pitch) * pitch;
+        var toLogical = Math.max(0, Math.min(snapped, maxSL));
         var from = strip.scrollLeft;
-        var snapped = base + Math.round((from + delta - base) / pitch) * pitch;
-        var to = Math.max(0, Math.min(snapped, maxSL));
+        var to = sign * toLogical;
         var dist = to - from;
         if (stripReduce || Math.abs(dist) < 1 || !('requestAnimationFrame' in window)){
           strip.scrollLeft = to; syncStrip(); return;
@@ -353,8 +378,7 @@
       nav.addEventListener('click', function(e){
         var b = e.target.closest('.strip-btn');
         if (!b) return;
-        var amt = stripStep() * (b.getAttribute('data-dir') === 'next' ? 1 : -1) * (stripRtl ? -1 : 1);
-        scrollStripBy(amt);
+        scrollStripBy(b.getAttribute('data-dir') === 'next' ? 1 : -1);
       });
 
       var stripRaf = null;
@@ -444,6 +468,12 @@
       }
       if(field.type === 'tel' && val && !PHONE_RE.test(val)){
         setError(field, ds.errFormat || 'Please enter a valid phone number.');
+        return false;
+      }
+      /* keep the client in step with the server, which needs >= 10 chars */
+      var min = parseInt(field.getAttribute('minlength'), 10);
+      if(min && val && val.length < min){
+        setError(field, ds.errFormat || ds.errRequired || 'Please add a little more detail.');
         return false;
       }
       clearError(field);

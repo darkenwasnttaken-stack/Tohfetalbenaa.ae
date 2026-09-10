@@ -255,7 +255,8 @@ html[dir="rtl"] .btn:hover .icon-dir{transform:scaleX(-1) translateX(4px);}
 }
 .site-header.solid{
   background:rgba(11,26,51,.94);
-  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+          backdrop-filter:blur(10px);
   padding-block:12px;
   border-color:rgba(255,255,255,.08);
 }
@@ -1092,10 +1093,13 @@ html[dir="rtl"] body.home-snap .hero-stack .row2{ margin-top:.26em; }
   html[dir="rtl"] body.home-snap .hero-stack{ max-width:none; font-size:clamp(64px, 7.4vw, 132px); }
 }
 
-/* Show the architecture, not the sky, and let the photo carry real weight. */
+/* Show the architecture, not the sky, and let the photo carry real weight.
+   No drift here — a snap section you re-enter constantly can't keep a
+   free-running Ken Burns loop without jumping. */
 body.home-snap .hero-photo-wrap img{
   object-position:56% 64%;
   transform:scale(1.16);
+  animation:none;
   filter:saturate(1.16) contrast(1.08) brightness(1.03);
 }
 @media(min-width:1121px){
@@ -1113,15 +1117,26 @@ body.home-snap .hero-photo-wrap img{
   50%    { transform:translateX(-50%) translateY(7px); }
 }
 
+/* On the snap homepage the background just stays put. The slow drift kept
+   its own 32s clock and never resynced, so scrolling back to the top
+   jumped it mid-loop and re-faded it — that was the "background bug". The
+   entrance is carried by the text; the photo is simply always there. */
 html.js body.home-snap .hero-photo-wrap img{
-  opacity:0;
-  animation:heroDrift 32s ease-in-out infinite alternate;
-  transition:opacity 1.4s var(--ease);
+  opacity:1;
+  animation:none;
+  transition:none;
 }
-html.js body.home-snap .hero-kicker,
-html.js body.home-snap .hero-sub{
+html.js body.home-snap .hero-kicker{
   opacity:0; transform:translateY(26px);
   transition:opacity .8s var(--ease), transform .8s var(--ease);
+}
+/* Keyed to its own visibility (`.sub-in`, see main.js) so it lands as you
+   scroll to it, not trailing the section reveal. Mid-paced: present enough
+   to read as a deliberate move, quick enough not to feel late. */
+html.js body.home-snap .hero-sub{
+  opacity:0; transform:translateY(18px);
+  transition:opacity .52s var(--ease), transform .52s var(--ease);
+  transition-delay:.05s;
 }
 html.js body.home-snap .hero-stack .row1,
 html.js body.home-snap .hero-stack .row2{
@@ -1134,14 +1149,13 @@ html.js body.home-snap .hero .scroll-cue{
   transition:opacity .8s var(--ease);
 }
 
-html.js body.home-snap .hero.is-in .hero-photo-wrap img{ opacity:1; }
 html.js body.home-snap .hero.is-in .hero-kicker{ opacity:1; transform:none; transition-delay:.05s; }
 /* The two headline lines key off `.hero-stack.head-in` (its own visibility),
    not the section state, so they replay whenever you scroll the h1 out of
    sight and back -- see main.js. */
 html.js body.home-snap .hero-stack.head-in .row1{ opacity:1; transform:none; clip-path:inset(-0.12em 0 -0.15em 0); transition-delay:.12s; }
 html.js body.home-snap .hero-stack.head-in .row2{ opacity:1; transform:none; clip-path:inset(-0.12em 0 -0.15em 0); transition-delay:.30s; }
-html.js body.home-snap .hero.is-in .hero-sub{ opacity:1; transform:none; transition-delay:.58s; }
+html.js body.home-snap .hero-sub.sub-in{ opacity:1; transform:none; }
 html.js body.home-snap .hero.is-in .scroll-cue{
   opacity:1; transition-delay:.8s;
   animation:cueFloat 2.6s 2.4s ease-in-out infinite;
@@ -1309,6 +1323,17 @@ body.home-snap .strip-nav{ display:none; }
   body.home-snap .proj-grid.at-end{
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
             mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
+  }
+  /* The mask gradient is physical (90deg = L->R) but "start"/"end" are
+     logical — in Arabic the strip starts at the right, so the edge that
+     should lose its fade is the opposite one. Swap the two states. */
+  html[dir="rtl"] body.home-snap .proj-grid.at-start{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 100%);
+  }
+  html[dir="rtl"] body.home-snap .proj-grid.at-end{
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 93%,transparent 100%);
+            mask-image:linear-gradient(90deg,#000 0,#000 93%,transparent 100%);
   }
 }
 @media (prefers-reduced-motion: reduce){
