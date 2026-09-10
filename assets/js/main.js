@@ -129,6 +129,63 @@
     reveals.forEach(function(el){ el.classList.add('in'); });
   }
 
+  /* Homepage "Selected Works" — arrow controls + edge fade for the card strip.
+     Injected here (not in the HTML) so it only exists where JS runs and only
+     on the snap homepage; phones just swipe, the buttons show from 900px up. */
+  if (document.body.classList.contains('home-snap')) {
+    var strip = document.querySelector('.proj-grid');
+    var stripHead = document.querySelector('.section-head');
+    if (strip && stripHead) {
+      var nav = document.createElement('div');
+      nav.className = 'strip-nav';
+      nav.innerHTML =
+        '<button type="button" class="strip-btn" data-dir="prev" aria-label="Previous projects">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>' +
+        '<button type="button" class="strip-btn" data-dir="next" aria-label="Next projects">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>';
+      stripHead.appendChild(nav);
+
+      var stripRtl = getComputedStyle(strip).direction === 'rtl';
+      var prevBtn = nav.querySelector('[data-dir="prev"]');
+      var nextBtn = nav.querySelector('[data-dir="next"]');
+
+      var stripStep = function(){
+        var card = strip.querySelector('.proj-card');
+        var w = (card ? card.getBoundingClientRect().width : 306) + 14;
+        /* ~1.6 cards per click: enough to feel like real progress, small
+           enough that it always takes a few clicks to reach the end */
+        return Math.round(w * 1.6);
+      };
+      var syncStrip = function(){
+        var max = strip.scrollWidth - strip.clientWidth - 1;
+        var sl = Math.abs(strip.scrollLeft);
+        var atStart = sl <= 1, atEnd = sl >= max;
+        strip.classList.toggle('at-start', atStart);
+        strip.classList.toggle('at-end', atEnd);
+        prevBtn.disabled = atStart;
+        nextBtn.disabled = atEnd;
+      };
+
+      nav.addEventListener('click', function(e){
+        var b = e.target.closest('.strip-btn');
+        if (!b) return;
+        var amt = stripStep() * (b.getAttribute('data-dir') === 'next' ? 1 : -1) * (stripRtl ? -1 : 1);
+        strip.scrollBy({ left: amt, behavior: 'smooth' });
+        setTimeout(syncStrip, 60);     // in case the smooth scroll is instant / throttled
+        setTimeout(syncStrip, 550);    // after it settles
+      });
+
+      var stripRaf = null;
+      var queueSync = function(){
+        if (stripRaf) return;
+        stripRaf = requestAnimationFrame(function(){ stripRaf = null; syncStrip(); });
+      };
+      strip.addEventListener('scroll', queueSync, { passive: true });
+      window.addEventListener('resize', queueSync, { passive: true });
+      syncStrip();
+    }
+  }
+
   /* Animated counters */
   var counters = document.querySelectorAll('[data-count]');
   function animateCount(el){
