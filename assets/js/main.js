@@ -14,6 +14,8 @@
   function revealAll(){
     var r = document.querySelectorAll('.reveal:not(.in)');
     for (var i = 0; i < r.length; i++) r[i].classList.add('in');
+    var hero = document.querySelector('.hero');
+    if (hero) hero.classList.add('is-in');   /* homepage hero entrance state */
   }
 
   /* Stamp the current year into any .cyr element (footer copyright) so it never
@@ -101,32 +103,61 @@
   /* Reveal on scroll. The negative bottom margin holds the reveal until the
      element is a little way into the viewport, so the fade/rise is actually
      seen playing rather than finishing off-screen. Items that share a row
-     (grid/flex siblings) get a short stagger so they cascade in. */
+     (grid/flex siblings) get a short stagger so they cascade in.
+
+     On the homepage the reveal REPLAYS: when an element scrolls fully out of
+     view it resets to hidden, so it animates again on the way back (up or
+     down). Elsewhere it plays once and is left alone. */
   var reveals = document.querySelectorAll('.reveal');
+  var revealReplay = document.body.classList.contains('home-snap');
   if('IntersectionObserver' in window && reveals.length){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
-        if(!en.isIntersecting) return;
         var el = en.target;
-        io.unobserve(el);
-        var parent = el.parentNode;
-        if(parent){
-          var sibs = parent.querySelectorAll(':scope > .reveal');
-          var idx = Array.prototype.indexOf.call(sibs, el);
-          if(idx > 0 && sibs.length > 1){
-            var d = Math.min(idx, 4) * 75;
-            el.style.transitionDelay = d + 'ms';
-            /* drop the delay once the reveal has played so it can't slow a
-               later transition (card hover, etc.) on the same element */
-            setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), d + 900);
+        if(en.isIntersecting){
+          var parent = el.parentNode;
+          if(parent){
+            var sibs = parent.querySelectorAll(':scope > .reveal');
+            var idx = Array.prototype.indexOf.call(sibs, el);
+            el.style.transitionDelay = (idx > 0 && sibs.length > 1) ? (Math.min(idx, 4) * 75) + 'ms' : '';
+          }
+          el.classList.add('in');
+          if(!revealReplay){
+            io.unobserve(el);
+            setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 900);
+          }
+        } else if(revealReplay && !el.classList.contains('proj-card')){
+          /* reset to hidden only once it's genuinely off-screen, so it plays
+             again on the way back — and never flickers while still in view */
+          var r = el.getBoundingClientRect();
+          if(r.bottom < -16 || r.top > (window.innerHeight || 0) + 16){
+            el.classList.remove('in');
+            el.style.transitionDelay = '';
           }
         }
-        el.classList.add('in');
       });
     }, {threshold:0.05, rootMargin:'0px 0px -80px 0px'});
     reveals.forEach(function(el){ io.observe(el); });
   } else {
     reveals.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* Homepage hero — replay its entrance every time it comes back into view
+     (i.e. also when you scroll back up to the top), via `.is-in` on .hero.
+     Arms when the hero is meaningfully visible; only disarms once it's
+     completely gone, so the exit is never seen mid-scroll. */
+  if(revealReplay){
+    var heroEl = document.querySelector('.hero');
+    if(heroEl && 'IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if(e.intersectionRatio >= 0.12) heroEl.classList.add('is-in');
+          else if(e.intersectionRatio <= 0.001) heroEl.classList.remove('is-in');
+        });
+      }, {threshold:[0, 0.12, 0.4]}).observe(heroEl);
+    } else if(heroEl){
+      heroEl.classList.add('is-in');
+    }
   }
 
   /* Homepage "Selected Works" — arrow controls + edge fade for the card strip.
