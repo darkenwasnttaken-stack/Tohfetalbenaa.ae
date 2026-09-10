@@ -207,8 +207,17 @@ html[dir="rtl"] .serif-lead{font-family:var(--font-body);font-weight:500;font-st
   background:linear-gradient(177deg, #f6e6b8 0%, var(--gold-light) 55%, var(--gold) 100%);
   box-shadow:0 18px 40px -14px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.55);
 }
-.btn-line{border-color:currentColor;}
-.btn-line:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.btn-line{color:var(--navy);border-color:currentColor;}
+/* no heavy black fill — a faint tint, the outline goes solid navy, it lifts
+   and the arrow slides */
+.btn-line:hover{
+  background:rgba(10,26,53,.05);
+  color:var(--navy);
+  border-color:var(--navy);
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px -16px rgba(10,26,53,.35);
+}
+.btn-line:active{transform:translateY(0);box-shadow:none;}
 .btn-line-invert{border-color:rgba(255,255,255,.55);color:#fff;}
 .btn-line-invert:hover{background:#fff;color:var(--navy);}
 .btn svg{width:15px;height:15px;flex:none;transition:transform .3s var(--ease);}

@@ -311,7 +311,7 @@
            snap at the end is seamless. Ease-out: moves immediately, glides to
            a stop, no crawling tail. */
         strip.style.scrollSnapType = 'none';
-        var t0 = null, dur = Math.min(520, 320 + Math.abs(dist) * 0.22);
+        var t0 = null, dur = Math.min(420, 210 + Math.abs(dist) * 0.16);
         var step = function(ts){
           if (t0 === null) t0 = ts;
           var p = (ts - t0) / dur; if (p > 1) p = 1;
