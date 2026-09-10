@@ -921,17 +921,21 @@ body.home-snap .hero-inner{
 body.home-snap .hero-kicker{ margin-bottom:clamp(14px, 2.4vh, 22px); }
 body.home-snap .hero-sub{ margin-top:auto; }   /* shove description + CTAs to the bottom */
 
-/* Headline: bigger and free to run wide — not tied to the eyebrow's width. */
+/* Headline: bigger, free to run wide, with real air between the two lines. */
 body.home-snap .hero-stack{
   max-width:min(1200px, 96%);
   font-size:clamp(46px, 13vw, 132px);
-  line-height:.88;
+  line-height:.96;
   letter-spacing:-.012em;
   text-wrap:balance;
 }
-html[dir="rtl"] body.home-snap .hero-stack{ line-height:1.16; letter-spacing:0; }
+body.home-snap .hero-stack .row1{ display:block; }
+body.home-snap .hero-stack .row2{ display:block; margin-top:.14em; }
+html[dir="rtl"] body.home-snap .hero-stack{ line-height:1.2; letter-spacing:0; }
+html[dir="rtl"] body.home-snap .hero-stack .row2{ margin-top:.26em; }
 @media(min-width:1121px){
   body.home-snap .hero-stack{ max-width:none; font-size:clamp(80px, 9.6vw, 176px); }
+  body.home-snap .hero-stack .row2{ margin-top:.1em; }
   html[dir="rtl"] body.home-snap .hero-stack{ font-size:clamp(64px, 7.4vw, 132px); }
 }
 
@@ -946,16 +950,37 @@ body.home-snap .hero-photo-wrap img{
   body.home-snap .hero-photo-wrap img{ object-position:64% 44%; transform:scale(1.1); }
 }
 
-/* Staggered entrance for the hero — plays once on load. */
+/* ---------- Hero entrance choreography (plays once, on load) ----------
+   Photo fades up while the two headline lines rise out of an invisible
+   baseline, one after the other; the eyebrow leads, the description +
+   buttons and the scroll cue follow. The cue then keeps a slow float. */
 @keyframes heroRise{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
 @keyframes heroFade{ from{ opacity:0; } to{ opacity:1; } }
-body.home-snap .hero-kicker{ animation:heroRise .7s var(--ease) both; }
-body.home-snap .hero-stack { animation:heroRise .8s .08s var(--ease) both; }
-body.home-snap .hero-sub   { animation:heroRise .8s .18s var(--ease) both; }
-body.home-snap .hero .scroll-cue{ animation:heroFade 1s .4s var(--ease) both; }
+@keyframes heroImgIn{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes headlineLine{
+  from{ opacity:0; transform:translateY(.55em); clip-path:inset(100% 0 -0.15em 0); }
+  to  { opacity:1; transform:translateY(0);      clip-path:inset(-0.12em 0 -0.15em 0); }
+}
+@keyframes cueFloat{
+  0%,100%{ transform:translateX(-50%) translateY(0); }
+  50%    { transform:translateX(-50%) translateY(7px); }
+}
+
+body.home-snap .hero-photo-wrap img{
+  animation:heroImgIn 1.6s var(--ease) both, heroDrift 32s ease-in-out infinite alternate;
+}
+body.home-snap .hero-kicker      { animation:heroRise .7s var(--ease) both; }
+body.home-snap .hero-stack .row1 { animation:headlineLine .95s .12s var(--ease) both; }
+body.home-snap .hero-stack .row2 { animation:headlineLine .95s .34s var(--ease) both; }
+body.home-snap .hero-sub         { animation:heroRise .85s .6s var(--ease) both; }
+body.home-snap .hero .scroll-cue {
+  animation:heroFade 1s .95s var(--ease) both, cueFloat 2.6s 2.2s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce){
+  body.home-snap .hero-photo-wrap img,
   body.home-snap .hero-kicker,
-  body.home-snap .hero-stack,
+  body.home-snap .hero-stack .row1,
+  body.home-snap .hero-stack .row2,
   body.home-snap .hero-sub,
   body.home-snap .hero .scroll-cue{ animation:none; }
 }
@@ -1112,4 +1137,16 @@ body.home-snap .cta-band{ padding-block:clamp(88px,13vh,130px) clamp(72px,11vh,1
   body.home-snap main > section{ min-height:0; }
   body.home-snap .hero{ min-height:calc(100svh - clamp(104px,13vh,132px)); }
   body.home-snap .proj-grid{ height:clamp(300px, 70svh, 420px); }
+}
+
+/* Homepage scroll reveals — a touch more travel + a hair of scale so each
+   section settling into place reads as a deliberate move, not just a fade.
+   Grouped siblings still cascade (stagger set in main.js). */
+html.js body.home-snap .reveal{
+  transform:translateY(38px) scale(.985);
+  transition:opacity .72s var(--ease), transform .72s var(--ease);
+}
+html.js body.home-snap .reveal.in{ transform:none; }
+@media (prefers-reduced-motion: reduce){
+  html.js body.home-snap .reveal{ transform:none; transition:none; }
 }
