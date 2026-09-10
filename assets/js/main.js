@@ -146,6 +146,44 @@
     reveals.forEach(function(el){ el.classList.add('in'); });
   }
 
+  /* Capabilities page — service photos: wipe-in reveal (replays) + a gentle
+     scroll parallax on the image itself. */
+  var svcMedia = document.querySelectorAll('.svc-media');
+  if(svcMedia.length){
+    /* observe the ROW, not the media — the media clips itself to zero width
+       before it reveals, and a zero-area target never reports intersecting */
+    var svcRows = document.querySelectorAll('.svc-row');
+    if('IntersectionObserver' in window){
+      var svcIO = new IntersectionObserver(function(es){
+        es.forEach(function(e){ e.target.classList.toggle('in', e.isIntersecting); });
+      }, {threshold:0.22});
+      svcRows.forEach(function(row){ svcIO.observe(row); });
+    } else {
+      svcRows.forEach(function(row){ row.classList.add('in'); });
+    }
+
+    var svcReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!svcReduce){
+      var svcRaf = null;
+      var svcParallax = function(){
+        svcRaf = null;
+        var vh = window.innerHeight || 1;
+        for(var i = 0; i < svcMedia.length; i++){
+          var m = svcMedia[i], img = m.firstElementChild;
+          if(!img) continue;
+          var r = m.getBoundingClientRect();
+          if(r.bottom < -40 || r.top > vh + 40) continue;
+          var progress = (r.top + r.height / 2 - vh / 2) / vh;   /* ~ -0.6 .. 0.6 */
+          img.style.setProperty('--py', (progress * -30).toFixed(1) + 'px');
+        }
+      };
+      var svcQueue = function(){ if(!svcRaf) svcRaf = requestAnimationFrame(svcParallax); };
+      window.addEventListener('scroll', svcQueue, {passive:true});
+      window.addEventListener('resize', svcQueue, {passive:true});
+      svcParallax();
+    }
+  }
+
   /* Homepage hero — replay its entrance every time it comes back into view
      (i.e. also when you scroll back up to the top), via `.is-in` on .hero.
      Arms when the hero is meaningfully visible; only disarms once it's

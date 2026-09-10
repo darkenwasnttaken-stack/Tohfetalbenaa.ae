@@ -532,8 +532,36 @@ html[dir="rtl"] .legacy-stat .num{font-weight:800;}
 }
 .svc-row:last-child{border-bottom:1px solid var(--line);}
 .svc-media{position:relative;overflow:hidden;min-height:360px;}
-.svc-media img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease);}
-.svc-row:hover .svc-media img{transform:scale(1.045);}
+.svc-media img{
+  width:100%;height:100%;object-fit:cover;
+  --py:0px; --sc:1.12;
+  transform:translate3d(0,var(--py),0) scale(var(--sc));
+  transition:transform .3s ease-out;
+  will-change:transform;
+}
+.svc-row:hover .svc-media img{--sc:1.18;}
+
+/* Capabilities image animation: each photo wipes in from its outer edge as
+   the row enters view (and again on the way back), then holds a gentle
+   parallax drift as you scroll past — the drift is driven by main.js
+   setting --py. */
+html.js .svc-media{
+  clip-path:inset(0 100% 0 0);           /* odd rows: image is on the left, wipe L->R */
+  transition:clip-path 1s var(--ease);
+}
+html.js .svc-row:nth-child(even) .svc-media{
+  clip-path:inset(0 0 0 100%);           /* even rows: image on the right, wipe R->L */
+}
+html.js .svc-row.in .svc-media{clip-path:inset(0 0 0 0);}
+@media (prefers-reduced-motion: reduce){
+  html.js .svc-media{clip-path:none;transition:none;}
+  .svc-media img{--py:0px;--sc:1;transition:none;}
+  .svc-row:hover .svc-media img{--sc:1.03;}
+}
+@media(max-width:822px){
+  /* stacked layout — all images read as "on the left" */
+  html.js .svc-row:nth-child(even) .svc-media{clip-path:inset(0 100% 0 0);}
+}
 .svc-copy{padding:54px var(--gutter);display:flex;flex-direction:column;justify-content:center;}
 .svc-index{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--gold);margin-bottom:14px;}
 html[dir="rtl"] .svc-index{font-family:var(--font-body);font-weight:700;font-style:normal;}
