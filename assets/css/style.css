@@ -10,19 +10,28 @@
    file has downloaded and parsed — a serial round-trip on the critical path). */
 
 :root{
-  --navy: #0b1a33;
-  --navy-2: #0f2447;
-  --navy-3: #16305c;
-  --gold: #b9924f;
-  --gold-light: #ddc389;
+  /* Navy: a deeper, slightly bluer base with a genuine darkest tone, so the
+     dark bands read with depth instead of a single flat fill. */
+  --navy: #0a1a35;
+  --navy-2: #12305c;
+  --navy-3: #1e447f;      /* brighter — livelier hairlines / accents on dark */
+  --navy-deep: #060f24;   /* darkest — gradient floors */
+  --navy-grad: radial-gradient(120% 90% at 12% 0%, #17356a 0%, #0a1a35 44%, #060f24 100%);
+
+  /* Gold: luminous and warmer — real gold rather than the old muted brass. */
+  --gold: #d1a552;
+  --gold-light: #efdaa6;
   --gold-deep: #7d5f2b;   /* AA-contrast gold for label text on light backgrounds */
-  --paper: #f3f1ea;
-  --paper-2: #eae6da;
+  --gold-glow: rgba(209,165,82,0.38);
+
+  /* Paper: a touch warmer and brighter so the light sections feel sunlit. */
+  --paper: #f6f3ea;
+  --paper-2: #efe9d9;
   --ink: #12151b;
-  --ink-soft: #4b5361;
+  --ink-soft: #4a525f;
   --white: #ffffff;
-  --line: rgba(11,26,51,0.14);
-  --line-light: rgba(255,255,255,0.18);
+  --line: rgba(10,26,53,0.16);
+  --line-light: rgba(255,255,255,0.22);
 
   --font-display: 'Anton', 'Tajawal', sans-serif;
   --font-serif: 'Fraunces', serif;
@@ -186,11 +195,18 @@ html[dir="rtl"] .serif-lead{font-family:var(--font-body);font-weight:500;font-st
   font-weight:700;font-size:14px;letter-spacing:.03em;
   padding:16px 30px;
   border:1px solid transparent;
-  transition:transform .35s var(--ease), background .3s, color .3s, border-color .3s;
+  transition:transform .35s var(--ease), background .3s, color .3s, border-color .3s, box-shadow .3s;
   white-space:nowrap;
 }
-.btn-gold{background:var(--gold);color:var(--navy);}
-.btn-gold:hover{background:var(--gold-light);}
+.btn-gold{
+  background:linear-gradient(177deg, var(--gold-light) 0%, var(--gold) 52%, #bd8f45 100%);
+  color:var(--navy);
+  box-shadow:0 12px 28px -14px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-gold:hover{
+  background:linear-gradient(177deg, #f6e6b8 0%, var(--gold-light) 55%, var(--gold) 100%);
+  box-shadow:0 18px 40px -14px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.55);
+}
 .btn-line{border-color:currentColor;}
 .btn-line:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
 .btn-line-invert{border-color:rgba(255,255,255,.55);color:#fff;}
@@ -486,7 +502,7 @@ html.js .reveal.in{opacity:1;transform:none;}
 
 /* ---------- 2002 brand moment ---------- */
 .legacy{
-  position:relative;background:var(--navy);color:#fff;padding:150px 0 130px;
+  position:relative;background:var(--navy-grad);color:#fff;padding:150px 0 130px;
   overflow:hidden;
 }
 .legacy-years{
@@ -570,7 +586,7 @@ html[dir="rtl"] .process-step h3{font-weight:800;font-size:16px;}
 .process-step p{margin-top:10px;font-size:14px;color:var(--ink-soft);line-height:1.55;}
 
 /* ---------- CTA band ---------- */
-.cta-band{background:var(--navy);color:#fff;padding:100px 0;text-align:center;}
+.cta-band{background:var(--navy-grad);color:#fff;padding:100px 0;text-align:center;}
 .cta-band .display-2{margin-bottom:30px;}
 .cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:36px;}
 
@@ -625,7 +641,7 @@ html[dir="rtl"] .footer-col h2{letter-spacing:0;}
    breathing room for the breadcrumb — the old 186px left a ~90px dead band
    between the header and the breadcrumb on every interior page. Scaled gently
    with viewport height, in the same spirit as the homepage hero's clearance. */
-.page-hero{position:relative;background:var(--navy);color:#fff;padding:clamp(128px, 14vh, 148px) 0 clamp(52px, 7vh, 76px);overflow:hidden;min-height:clamp(300px, 36vh, 360px);}
+.page-hero{position:relative;background:var(--navy-grad);color:#fff;padding:clamp(128px, 14vh, 148px) 0 clamp(52px, 7vh, 76px);overflow:hidden;min-height:clamp(300px, 36vh, 360px);}
 @media(max-width:640px){.page-hero{padding:112px 0 44px;}}
 /* A modest floor so a one-line-heading interior page still reads as a header
    band rather than a thin strip, and so a wide/short desktop viewport doesn't
@@ -650,7 +666,7 @@ html[dir="rtl"] .footer-col h2{letter-spacing:0;}
 /* Texture variant — for pages that aren't literally showcasing a project
    (About, Contact): a branded blueprint-grid + a large watermark year rather
    than a random villa photo standing in as wallpaper. */
-.page-hero.texture{background:var(--navy);}
+.page-hero.texture{background:var(--navy-grad);}
 .page-hero.texture .bg{
   background-image:
     repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 1px, transparent 1px 64px),
