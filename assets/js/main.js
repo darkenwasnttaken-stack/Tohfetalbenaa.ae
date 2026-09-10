@@ -216,17 +216,24 @@
 
   /* Homepage hero — replay its entrance every time it comes back into view
      (i.e. also when you scroll back up to the top), via `.is-in` on .hero.
-     Arms when the hero is meaningfully visible; only disarms once it's
-     completely gone, so the exit is never seen mid-scroll. */
+     Two single-purpose observers, same split the .reveal replay uses:
+       - arm  when the hero is at least half in view (it's a full-height
+              snap section, so that only happens when it's the live one);
+       - disarm the instant it's fully gone, so the reset is never seen
+              mid-scroll.
+     A previous single multi-threshold observer had a dead zone between its
+     two ratio cut-offs: a fast snap-scroll could leave the hero parked
+     just inside it, so `.is-in` was never cleared and the entrance didn't
+     replay until some later scroll happened to cross a threshold. */
   if(document.body.classList.contains('home-snap')){
     var heroEl = document.querySelector('.hero');
     if(heroEl && 'IntersectionObserver' in window){
       new IntersectionObserver(function(es){
-        es.forEach(function(e){
-          if(e.intersectionRatio >= 0.12) heroEl.classList.add('is-in');
-          else if(e.intersectionRatio <= 0.001) heroEl.classList.remove('is-in');
-        });
-      }, {threshold:[0, 0.12, 0.4]}).observe(heroEl);
+        es.forEach(function(e){ if(e.intersectionRatio >= 0.5) heroEl.classList.add('is-in'); });
+      }, {threshold:[0.5]}).observe(heroEl);
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(!e.isIntersecting) heroEl.classList.remove('is-in'); });
+      }, {threshold:0}).observe(heroEl);
     } else if(heroEl){
       heroEl.classList.add('is-in');
     }
