@@ -44,7 +44,7 @@ $lang = (($_POST['lang'] ?? '') === 'ar') ? 'ar' : 'en';
 
 $STR = [
     'en' => [
-        'ok'           => 'Thank you — your inquiry has been sent. Our team will get back to you within one business day.',
+        'ok'           => 'Thank you — your inquiry has been sent. Our team will review the details and be in touch about your project.',
         'invalid'      => 'Please check the highlighted fields and try again.',
         'too_fast'     => 'That came through a little too fast — please send it once more.',
         'rate'         => 'You’ve already sent a few messages. Please try again later, or reach us on WhatsApp.',
@@ -56,7 +56,7 @@ $STR = [
         'back'         => 'Back to the website',
     ],
     'ar' => [
-        'ok'           => 'شكرًا لك — تم إرسال طلبك. سيعاود فريقنا التواصل معك خلال يوم عمل واحد.',
+        'ok'           => 'شكرًا لك — تم إرسال طلبك. سيطّلع فريقنا على التفاصيل ويتواصل معك بشأن مشروعك.',
         'invalid'      => 'يرجى مراجعة الحقول المحددة والمحاولة مرة أخرى.',
         'too_fast'     => 'تم الإرسال بسرعة كبيرة — يرجى إرساله مرة أخرى.',
         'rate'         => 'لقد أرسلت عدة رسائل بالفعل. يرجى المحاولة لاحقًا أو التواصل عبر واتساب.',

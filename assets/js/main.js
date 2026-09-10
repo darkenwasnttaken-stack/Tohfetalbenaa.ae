@@ -1,6 +1,26 @@
 (function(){
   "use strict";
 
+  document.documentElement.classList.add('js');
+
+  /* Reveal-on-scroll content is guaranteed visible no matter what: it's only
+     hidden under html.js, and if anything below throws before the observer is
+     wired up, this catch reveals everything immediately. */
+  function revealAll(){
+    var r = document.querySelectorAll('.reveal:not(.in)');
+    for (var i = 0; i < r.length; i++) r[i].classList.add('in');
+  }
+
+  /* Stamp the current year into any .cyr element (footer copyright) so it never
+     goes stale; the hard-coded value in the HTML is the no-JS fallback. */
+  try {
+    var y = String(new Date().getFullYear());
+    var yr = document.querySelectorAll('.cyr');
+    for (var yi = 0; yi < yr.length; yi++) yr[yi].textContent = y;
+  } catch(e){}
+
+  try {
+
   var header = document.querySelector('.site-header');
   var toggle = document.querySelector('.nav-toggle');
   var panel = document.querySelector('.mobile-panel');
@@ -50,18 +70,26 @@
 
   /* Mobile menu */
   if(toggle && panel){
+    var firstPanelLink = panel.querySelector('a');
+    function closePanel(returnFocus){
+      panel.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded','false');
+      document.body.style.overflow='';
+      if(returnFocus) toggle.focus();
+    }
     toggle.addEventListener('click', function(){
       var open = panel.classList.toggle('open');
       toggle.classList.toggle('open', open);
       document.body.style.overflow = open ? 'hidden' : '';
       toggle.setAttribute('aria-expanded', open ? 'true':'false');
+      if(open && firstPanelLink) firstPanelLink.focus();
     });
     panel.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', function(){
-        panel.classList.remove('open');
-        toggle.classList.remove('open');
-        document.body.style.overflow='';
-      });
+      a.addEventListener('click', function(){ closePanel(false); });
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape' && panel.classList.contains('open')) closePanel(true);
     });
   }
 
@@ -264,5 +292,11 @@
         setButton(null);
       });
     });
+  }
+
+  } catch(err){
+    /* Something above broke — make sure no content is left hidden. */
+    revealAll();
+    if (window.console && console.error) console.error('main.js:', err);
   }
 })();

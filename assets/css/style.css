@@ -5,8 +5,9 @@
    recurring structural motif, edge-to-edge photography.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,300;9..144,500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+/* Fonts are loaded via <link> in each page's <head> (parallel, non-blocking)
+   rather than @import here (which the browser can only discover after this
+   file has downloaded and parsed — a serial round-trip on the critical path). */
 
 :root{
   --navy: #0b1a33;
@@ -14,6 +15,7 @@
   --navy-3: #16305c;
   --gold: #b9924f;
   --gold-light: #ddc389;
+  --gold-deep: #7d5f2b;   /* AA-contrast gold for label text on light backgrounds */
   --paper: #f3f1ea;
   --paper-2: #eae6da;
   --ink: #12151b;
@@ -38,7 +40,20 @@ html[dir="rtl"]{
 }
 
 *,*::before,*::after{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
+html{
+  scroll-behavior:smooth;
+  /* Navy so the iOS pull-to-refresh / rubber-band overscroll area shows the
+     brand colour — every page starts on a navy hero and ends on the navy
+     footer — instead of a bare cream gap with the white header text stranded
+     on it. */
+  background:var(--navy);
+  /* Horizontal-overflow guard that does NOT create a scroll container:
+     `clip` (unlike `overflow-x:hidden`, which was previously on <body>) keeps
+     the browser's native pull-to-refresh and fixed-header positioning intact
+     on iOS. `hidden` on <body> was turning it into the scroller, which broke
+     pull-to-refresh at the top and made the fixed header detach on overscroll. */
+  overflow-x:clip;
+}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}
   *,*::before,*::after{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
@@ -50,7 +65,7 @@ body{
   background:var(--paper);
   -webkit-font-smoothing:antialiased;
   line-height:1.5;
-  overflow-x:hidden;
+  overflow-x:clip;
 }
 img{max-width:100%;display:block;}
 a{color:inherit;text-decoration:none;}
@@ -67,14 +82,37 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   outline-offset:3px;
 }
 
+/* Skip link — first tab stop, off-screen until focused */
+.skip-link{
+  position:absolute;left:12px;top:-60px;z-index:200;
+  background:var(--gold);color:var(--navy);font-weight:700;font-size:14px;
+  padding:10px 16px;border-radius:2px;transition:top .2s var(--ease);
+}
+.skip-link:focus-visible{top:12px;outline-offset:2px;}
+html[dir="rtl"] .skip-link{left:auto;right:12px;}
+
+/* Fixed header is ~97px tall; give in-page anchor targets clearance so a jump
+   (e.g. a homepage project card -> projects.html#villa-...) doesn't land the
+   heading hidden under the header. */
+:target,#main{scroll-margin-top:110px;}
+@media(max-width:640px){:target,#main{scroll-margin-top:88px;}}
+
 /* ---------- Type ---------- */
 .eyebrow{
   font-family:var(--font-body);
   font-weight:700;
   font-size:12.5px;
   letter-spacing:.14em;
-  color:var(--gold);
+  /* Brand gold at full brightness only reaches ~2.4:1 on the light paper
+     backgrounds — a WCAG AA failure for label text. A deeper bronze-gold
+     clears 4.5:1 while staying unmistakably "the gold". On dark sections the
+     eyebrow keeps the bright gold (overridden just below). */
+  color:var(--gold-deep);
 }
+.hero .eyebrow,
+.page-hero .eyebrow,
+.cta-band .eyebrow,
+.legacy .eyebrow{color:var(--gold);}
 html[dir="rtl"] .eyebrow{letter-spacing:0;}
 
 .display-1{
@@ -242,9 +280,14 @@ html[dir="rtl"] .nav-links a::after{transform-origin:right;}
   position:fixed;inset:0;z-index:99;background:var(--navy);
   display:flex;flex-direction:column;justify-content:center;
   padding:100px var(--gutter) 40px;
-  transform:translateY(-100%);transition:transform .5s var(--ease);
+  transform:translateY(-100%);
+  /* visibility:hidden while closed takes the panel's links out of the tab order
+     and the a11y tree (otherwise keyboard focus fell through the invisible
+     off-screen menu on every page). Delayed so the slide-out still animates. */
+  visibility:hidden;
+  transition:transform .5s var(--ease), visibility 0s linear .5s;
 }
-.mobile-panel.open{transform:translateY(0);}
+.mobile-panel.open{transform:translateY(0);visibility:visible;transition:transform .5s var(--ease), visibility 0s;}
 .mobile-panel a{display:block;color:#fff;font-family:var(--font-display);font-size:34px;text-transform:uppercase;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.12);}
 html[dir="rtl"] .mobile-panel a{font-weight:800;}
 .mobile-panel .lang-switch{margin-top:26px;}
@@ -414,8 +457,6 @@ html[dir="rtl"] .hero-bg::after{
 
 /* ---------- Section rhythm ---------- */
 .section{padding:112px 0;position:relative;}
-.section-tight{padding:80px 0;}
-.section-navy{background:var(--navy);color:#fff;}
 .section-paper2{background:var(--paper-2);}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px;flex-wrap:wrap;}
 /* A single centered statement (eyebrow + heading + one paragraph, nothing
@@ -426,12 +467,14 @@ html[dir="rtl"] .hero-bg::after{
 .statement-center .body-md{margin:22px auto 0;max-width:640px;font-size:18.5px;line-height:1.75;}
 .section-head .r{max-width:420px;}
 
-/* reveal-on-scroll */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease), transform .9s var(--ease);}
-.reveal.in{opacity:1;transform:none;}
-.reveal-delay-1{transition-delay:.1s;}
-.reveal-delay-2{transition-delay:.2s;}
-.reveal-delay-3{transition-delay:.3s;}
+/* reveal-on-scroll — only hidden once JS is confirmed running (html.js), so a
+   script that fails to load or errors never leaves content permanently blank.
+   A <head> failsafe also force-reveals anything still hidden after 3s. */
+html.js .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease), transform .9s var(--ease);}
+html.js .reveal.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion: reduce){
+  html.js .reveal{opacity:1;transform:none;transition:none;}
+}
 
 /* ---------- 2002 brand moment ---------- */
 .legacy{
@@ -470,21 +513,11 @@ html[dir="rtl"] .legacy-stat .num{font-weight:800;}
 .svc-copy{padding:54px var(--gutter);display:flex;flex-direction:column;justify-content:center;}
 .svc-index{font-family:var(--font-serif);font-style:italic;font-size:16px;color:var(--gold);margin-bottom:14px;}
 html[dir="rtl"] .svc-index{font-family:var(--font-body);font-weight:700;font-style:normal;}
-.svc-copy h3{margin-bottom:16px;}
+.svc-copy h2{margin-bottom:16px;}
 .svc-row:nth-child(even){direction:rtl;}
 .svc-row:nth-child(even) .svc-copy{direction:ltr;}
 html[dir="rtl"] .svc-row:nth-child(even){direction:ltr;}
 html[dir="rtl"] .svc-row:nth-child(even) .svc-copy{direction:rtl;}
-
-/* ---------- Credentials strip ---------- */
-.cred-grid{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);}
-.cred-cell{padding:32px 22px;border-inline-start:1px solid var(--line);position:relative;}
-.cred-cell:first-child{border-inline-start:0;}
-.cred-cell .k{font-size:11.5px;letter-spacing:.1em;color:var(--ink-soft);text-transform:uppercase;margin-bottom:10px;}
-html[dir="rtl"] .cred-cell .k{letter-spacing:0;}
-.cred-cell .v{font-family:var(--font-display);font-size:22px;color:var(--navy);line-height:1.15;}
-html[dir="rtl"] .cred-cell .v{font-weight:800;font-size:19px;}
-.cred-cell .v small{display:block;font-family:var(--font-body);font-weight:600;font-size:12px;color:var(--ink-soft);margin-top:5px;}
 
 /* ---------- Projects grid ---------- */
 .proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);}
@@ -506,8 +539,8 @@ html[dir="rtl"] .cred-cell .v{font-weight:800;font-size:19px;}
 .proj-info{position:absolute;inset-inline:0;bottom:0;z-index:2;padding:22px 24px;color:#fff;}
 .proj-tag{font-size:11px;letter-spacing:.12em;color:var(--gold-light);text-transform:uppercase;margin-bottom:8px;}
 html[dir="rtl"] .proj-tag{letter-spacing:0;}
-.proj-info h4{font-family:var(--font-display);font-size:21px;text-transform:uppercase;line-height:1.15;}
-html[dir="rtl"] .proj-info h4{font-weight:800;font-size:18px;}
+.proj-info h3{font-family:var(--font-display);font-size:21px;text-transform:uppercase;line-height:1.15;}
+html[dir="rtl"] .proj-info h3{font-weight:800;font-size:18px;}
 .proj-meta{display:flex;gap:14px;margin-top:10px;font-size:12.5px;color:rgba(255,255,255,.72);flex-wrap:wrap;}
 .proj-meta span{display:flex;align-items:center;gap:5px;}
 
@@ -524,20 +557,9 @@ html[dir="rtl"] .proj-table tr td:first-child{font-family:var(--font-body);font-
 .process-step{background:var(--paper);padding:36px 24px;}
 .process-step .n{font-family:var(--font-serif);font-style:italic;font-size:15px;color:var(--gold);}
 html[dir="rtl"] .process-step .n{font-family:var(--font-body);font-weight:800;font-style:normal;}
-.process-step h4{margin-top:16px;font-family:var(--font-display);font-size:19px;text-transform:uppercase;}
-html[dir="rtl"] .process-step h4{font-weight:800;font-size:16px;}
+.process-step h3{margin-top:16px;font-family:var(--font-display);font-size:19px;text-transform:uppercase;}
+html[dir="rtl"] .process-step h3{font-weight:800;font-size:16px;}
 .process-step p{margin-top:10px;font-size:14px;color:var(--ink-soft);line-height:1.55;}
-
-/* ---------- Timeline (history) ---------- */
-.timeline-scroll{overflow-x:auto;padding-bottom:20px;-webkit-overflow-scrolling:touch;}
-.timeline-track{display:flex;gap:0;min-width:max-content;position:relative;padding-top:44px;}
-.timeline-track::before{content:'';position:absolute;top:6px;inset-inline:0;height:1px;background:var(--line);}
-.tl-pt{width:180px;flex:none;position:relative;padding-inline-end:0;}
-.tl-pt .dot{width:11px;height:11px;border-radius:50%;background:var(--gold);position:absolute;top:0;transform:translate(-50%,-50%);}
-html[dir="rtl"] .tl-pt .dot{transform:translate(50%,-50%);}
-.tl-pt .yr{font-family:var(--font-display);font-size:26px;color:var(--navy);margin-top:22px;}
-html[dir="rtl"] .tl-pt .yr{font-weight:800;}
-.tl-pt .desc{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.5;padding-inline-end:20px;}
 
 /* ---------- CTA band ---------- */
 .cta-band{background:var(--navy);color:#fff;padding:100px 0;text-align:center;}
@@ -551,8 +573,8 @@ html[dir="rtl"] .tl-pt .yr{font-weight:800;}
 .footer-brand img{height:38px;}
 .footer-brand span{font-family:var(--font-display);font-size:18px;color:#fff;}
 html[dir="rtl"] .footer-brand span{font-weight:800;}
-.footer-col h5{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;}
-html[dir="rtl"] .footer-col h5{letter-spacing:0;}
+.footer-col h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-light);margin-bottom:18px;}
+html[dir="rtl"] .footer-col h2{letter-spacing:0;}
 .footer-col li{margin-bottom:11px;font-size:14.5px;}
 .footer-col a:hover{color:#fff;}
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:26px;font-size:12.5px;color:rgba(255,255,255,.5);flex-wrap:wrap;gap:12px;}
@@ -630,12 +652,6 @@ html[dir="rtl"] .footer-col h5{letter-spacing:0;}
 .page-hero.texture .bg img{display:none;}
 .page-hero.texture .bg::after{background:radial-gradient(circle at 82% 18%, rgba(185,146,79,.16), transparent 45%),
   linear-gradient(180deg,rgba(11,26,51,.2),rgba(9,18,35,.98));}
-.page-hero.texture .year-mark{
-  position:absolute;top:50%;inset-inline-end:clamp(-40px,4vw,40px);transform:translateY(-50%);
-  font-family:var(--font-display);font-size:clamp(160px,26vw,420px);color:rgba(255,255,255,.045);
-  line-height:1;pointer-events:none;z-index:1;letter-spacing:0;
-}
-@media(max-width:760px){.page-hero.texture .year-mark{display:none;}}
 
 /* Brand mark used in place of the year numeral on the About page — the
    company's own building icon, faint, with a slow one-time entrance and a
@@ -696,20 +712,6 @@ html[dir="rtl"] .stat-row .stat .num{font-weight:800;}
   .stat-row .stat .lbl{font-size:11px;}
 }
 
-.vm-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);}
-.vm-cell{background:var(--paper);padding:56px var(--gutter);}
-.vm-cell.navy{background:var(--navy);color:#fff;}
-.vm-cell .eyebrow{margin-bottom:18px;}
-.vm-cell p{margin-top:20px;}
-
-/* license doc chips */
-.doc-list{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--line);}
-.doc-item{background:var(--paper);padding:30px 28px;display:flex;justify-content:space-between;align-items:center;gap:18px;}
-.doc-item .t{}
-.doc-item .t .name{font-weight:700;font-size:15.5px;color:var(--navy);}
-.doc-item .t .meta{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
-.doc-item svg{width:18px;height:18px;flex:none;color:var(--gold);}
-
 /* ---------- Contact ---------- */
 .contact-form-solo{background:var(--paper);padding:60px var(--gutter);box-shadow:0 24px 60px -20px rgba(11,26,51,.15);}
 
@@ -730,8 +732,12 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 .field.has-error .field-error{display:block;}
 .chip-group{display:flex;gap:10px;flex-wrap:wrap;}
 .chip{border:1px solid var(--line);padding:12px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:.25s;background:#fff;}
-.chip input{display:none;}
+/* The radio stays in the DOM, focusable and announced (was display:none, which
+   removed it from the tab order and the a11y tree — keyboard users couldn't
+   pick a project type). Visually hidden; the .chip label is the visible control. */
+.chip input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;margin:0;}
 .chip:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy);}
+.chip:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:2px;}
 .form-note{font-size:12.5px;color:var(--ink-soft);margin-top:6px;}
 .form-status{margin-top:16px;font-size:14px;font-weight:600;display:none;padding:12px 16px;border-inline-start:3px solid var(--navy);background:rgba(11,26,51,.05);}
 .form-status.show{display:block;}
@@ -740,8 +746,12 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 .form-actions{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
 /* Honeypot: a decoy field, kept out of view and out of the tab order and the
    a11y tree. Real people never touch it; bots that auto-fill every input do,
-   and the server then silently discards the submission. */
-.hp-field{position:absolute!important;left:-9999px!important;top:auto;width:1px;height:1px;padding:0;border:0;overflow:hidden;opacity:0;pointer-events:none;}
+   and the server then silently discards the submission.
+   Hidden by clipping a 1x1 box (NOT by left:-9999px — that pushes content
+   off-canvas in the scroll direction on RTL pages and blows out the page
+   width when zoomed out on mobile). This technique adds no scrollable area
+   in either writing direction. */
+.hp-field{position:absolute!important;width:1px;height:1px;margin:0;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);opacity:0;pointer-events:none;}
 /* Submit button while the request is in flight / after a successful send */
 #inquiry-form button[disabled]{opacity:.65;cursor:not-allowed;}
 
@@ -751,9 +761,6 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 
 /* ---------- Utility ---------- */
 .center{text-align:center;margin-inline:auto;}
-.mt-0{margin-top:0 !important;}
-.hidden{display:none !important;}
-.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:7px 14px;font-size:12.5px;font-weight:600;}
 
 /* ---------- Responsive ---------- */
 /* Nav: the full bar (logo + five links + language switch) stays visible for as
@@ -786,9 +793,6 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 @media(max-width:1080px){
   .legacy-stats{grid-template-columns:repeat(2,1fr);row-gap:30px;}
   .legacy-stat:nth-child(3){border-inline-start:0;}
-  .cred-grid{grid-template-columns:repeat(3,1fr);}
-  .cred-cell:nth-child(4){border-inline-start:0;}
-  .doc-list{grid-template-columns:1fr;}
 }
 @media(max-width:860px){
   .svc-row{grid-template-columns:1fr;}
@@ -802,7 +806,6 @@ html[dir="rtl"] .field label{letter-spacing:0;}
   .svc-media{min-height:280px;}
   .proj-grid{grid-template-columns:repeat(2,1fr);}
   .process-track{grid-template-columns:repeat(2,1fr);}
-  .vm-grid{grid-template-columns:1fr;}
   /* Brand block spans the full row, and — because it's the only item placed
      explicitly — the three link columns that follow (Navigate, Capabilities,
      Reach Us) automatically flow into their own three-column row underneath
@@ -810,7 +813,7 @@ html[dir="rtl"] .field label{letter-spacing:0;}
      grid. Their heading/list text is sized down a little too, since each
      column is now only about a third of the width it had when stacked. */
   .footer-grid{grid-template-columns:repeat(3,1fr);column-gap:18px;row-gap:36px;}
-  .footer-col h5{font-size:11px;margin-bottom:14px;}
+  .footer-col h2{font-size:11px;margin-bottom:14px;}
   .footer-col li{font-size:12.5px;margin-bottom:9px;}
   /* The logo/name/tagline are dropped entirely on mobile (the logo already
      appears once in the header on every page — repeating it again at the
@@ -824,21 +827,16 @@ html[dir="rtl"] .field label{letter-spacing:0;}
   .footer-brand-block .footer-brand,
   .footer-brand-block p{display:none;}
   .footer-brand-block .footer-social-wrap{width:100%;margin-top:0 !important;display:flex;justify-content:center;}
-  .cred-grid{grid-template-columns:repeat(2,1fr);}
-  .cred-cell:nth-child(3){border-inline-start:0;}
   .form-grid{grid-template-columns:1fr;}
 }
 @media(max-width:560px){
   .process-track{grid-template-columns:1fr;}
-  .cred-grid{grid-template-columns:1fr 1fr;}
-  .cred-cell:nth-child(3){border-inline-start:1px solid var(--line);}
-  .cred-cell:nth-child(odd){border-inline-start:0;}
   /* Kept at 2 columns instead of collapsing further to 1 — but a card that's
      now roughly half as wide as before needs its own text to scale down
      too, or a longer project title like "Shamkha South (Sector SHS10)"
      would be fighting for space it no longer has. */
   .proj-info{padding:14px 14px;}
-  .proj-info h4{font-size:15px;line-height:1.2;}
+  .proj-info h3{font-size:15px;line-height:1.2;}
   .proj-tag{font-size:9.5px;margin-bottom:5px;}
   .proj-meta{font-size:10.5px;gap:8px;margin-top:6px;}
   .legacy-years{gap:10px;}
@@ -855,7 +853,6 @@ html[dir="rtl"] .field label{letter-spacing:0;}
    so more of what's already there fits in the same scroll. */
 @media(max-width:640px){
   .section{padding:52px 0;}
-  .section-tight{padding:36px 0;}
   .legacy{padding:92px 0 76px;}
   .legacy-stats{margin-top:40px;}
   .legacy-stat{padding:22px 14px 0;}
@@ -863,11 +860,8 @@ html[dir="rtl"] .field label{letter-spacing:0;}
   .cta-band{padding:60px 0;}
   .svc-copy{padding:30px var(--gutter);}
   .process-step{padding:24px 18px;}
-  .doc-item{padding:22px 20px;}
   .contact-form-solo{padding:24px 18px;}
   .page-hero{padding:120px 0 40px;}
-  .vm-cell{padding:36px var(--gutter);}
-  .timeline-track{padding-top:32px;}
   .footer-grid{padding-bottom:36px;}
   .site-footer{padding:48px 0 24px;}
 }
