@@ -125,23 +125,36 @@ html[dir="rtl"] .skip-link{left:auto;right:12px;}
 html[dir="rtl"] .eyebrow{letter-spacing:0;}
 
 .display-1{
-  font-family:var(--font-display);
+  /* The hero headline is the one place the site slows down and speaks: a
+     high-contrast Fraunces cut in title case reads as considered and
+     established, where the old condensed all-caps poster face read as loud
+     and generic. Optical size pinned high for the pronounced display
+     contrast. Anton still carries the wordmark and nav for structure. */
+  font-family:var(--font-serif);
   font-weight:400;
-  text-transform:uppercase;
-  line-height:.92;
-  letter-spacing:.005em;
+  font-style:normal;
+  text-transform:none;
+  line-height:1.04;
+  letter-spacing:-.015em;
+  font-variation-settings:'opsz' 144;
   /* Bounded by height as well as width: on a wide-but-short laptop viewport,
      a pure vw value ignores how little vertical room is actually available
      and the headline ends up oversized relative to the screen. min(vw,vh)
      makes it back off on short screens the same way it already backs off
      on narrow ones. */
-  font-size:clamp(40px, min(8.5vw, 13vh), 116px);
+  font-size:clamp(38px, min(6.8vw, 11vh), 92px);
 }
-/* Arabic display type: Tajawal's diacritics and full-height glyphs need real
-   breathing room between lines — the condensed Latin line-heights above are
-   what caused lines to collide. This is a global rule, not a per-heading patch,
-   so it protects every current and future large heading in Arabic. */
-html[dir="rtl"] .display-1{font-weight:800; letter-spacing:0; line-height:1.42;}
+/* Arabic display type: Fraunces has no Arabic, and the italic/title-case
+   treatment above is Latin-only anyway — keep Arabic on Tajawal, upright,
+   with the breathing room its diacritics and full-height glyphs need. */
+html[dir="rtl"] .display-1{
+  font-family:var(--font-body);
+  font-weight:800;
+  font-style:normal;
+  letter-spacing:0;
+  line-height:1.42;
+  font-variation-settings:normal;
+}
 
 .display-2{
   font-family:var(--font-display);
@@ -165,7 +178,7 @@ html[dir="rtl"] .display-3{font-weight:700; line-height:1.38;}
    line-height fix above — belt and braces against descender/diacritic overlap.
    Plain block + margin (not inline-block) — kept deliberately simple since
    RTL bidi + inline-block has a history of shaping bugs in older engines. */
-html[dir="rtl"] .hero-stack .row2{display:block;margin-top:.12em;}
+html[dir="rtl"] .hero-stack .row2{display:block;margin-top:.12em;font-size:1em;font-style:normal;font-weight:inherit;letter-spacing:0;}
 
 .serif-lead{
   font-family:var(--font-serif);
@@ -411,7 +424,17 @@ html[dir="rtl"] .hero-bg::after{
 .hero-kicker .line{width:46px;height:1px;background:var(--gold);}
 .hero-stack{margin:0;max-width:min(760px,86%);}
 .hero-stack .row1{display:block;color:#fff;}
-.hero-stack .row2{display:block;color:var(--gold-light);}
+/* Row 2 is the supporting clause, not a second shout: smaller, italic, gold.
+   The principal line + quiet second line is what gives the block editorial
+   hierarchy instead of two equal banners. */
+.hero-stack .row2{
+  display:block;
+  color:var(--gold-light);
+  font-size:.62em;
+  font-style:italic;
+  font-weight:400;
+  letter-spacing:-.005em;
+}
 .hero-sub{display:flex;flex-wrap:wrap;gap:20px 48px;align-items:flex-end;justify-content:space-between;margin-top:clamp(18px,3.5vh,34px);padding-top:clamp(16px,3vh,30px);border-top:1px solid rgba(255,255,255,.16);}
 .hero-name{max-width:480px;}
 .hero-name p{color:rgba(255,255,255,.72);font-size:14.5px;text-shadow:0 1px 4px rgba(0,0,0,.5);}
@@ -1050,22 +1073,23 @@ body.home-snap .hero-inner{
 body.home-snap .hero-kicker{ margin-bottom:clamp(14px, 2.4vh, 22px); }
 body.home-snap .hero-sub{ margin-top:auto; }   /* shove description + CTAs to the bottom */
 
-/* Headline: bigger, free to run wide, with real air between the two lines. */
+/* Headline: a held measure with generous air, not a wall-to-wall banner.
+   The whitespace around it is what makes it read as composed. */
 body.home-snap .hero-stack{
-  max-width:min(1200px, 96%);
-  font-size:clamp(46px, 13vw, 132px);
-  line-height:.96;
-  letter-spacing:-.012em;
+  max-width:min(15ch, 92%);
+  font-size:clamp(42px, 8.4vw, 82px);
+  line-height:1.05;
+  letter-spacing:-.016em;
   text-wrap:balance;
 }
 body.home-snap .hero-stack .row1{ display:block; }
-body.home-snap .hero-stack .row2{ display:block; margin-top:.14em; }
-html[dir="rtl"] body.home-snap .hero-stack{ line-height:1.2; letter-spacing:0; }
+body.home-snap .hero-stack .row2{ display:block; margin-top:.16em; }
+html[dir="rtl"] body.home-snap .hero-stack{ max-width:min(1100px, 94%); line-height:1.2; letter-spacing:0; font-size:clamp(46px, 12vw, 120px); }
 html[dir="rtl"] body.home-snap .hero-stack .row2{ margin-top:.26em; }
 @media(min-width:1121px){
-  body.home-snap .hero-stack{ max-width:none; font-size:clamp(80px, 9.6vw, 176px); }
-  body.home-snap .hero-stack .row2{ margin-top:.1em; }
-  html[dir="rtl"] body.home-snap .hero-stack{ font-size:clamp(64px, 7.4vw, 132px); }
+  body.home-snap .hero-stack{ max-width:17ch; font-size:clamp(62px, 6vw, 96px); }
+  body.home-snap .hero-stack .row2{ margin-top:.14em; }
+  html[dir="rtl"] body.home-snap .hero-stack{ max-width:none; font-size:clamp(64px, 7.4vw, 132px); }
 }
 
 /* Show the architecture, not the sky, and let the photo carry real weight. */
