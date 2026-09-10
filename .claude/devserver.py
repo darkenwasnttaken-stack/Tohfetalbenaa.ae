@@ -4,11 +4,22 @@ Same as `python -m http.server`, but sends no-cache headers on every response
 so edits to CSS/JS/HTML show up on a normal reload instead of being served
 stale from the browser cache.
 """
+import os
 import sys
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 
 class NoCacheHandler(SimpleHTTPRequestHandler):
+    def translate_path(self, path):
+        # Mirror the production .htaccess clean-URL rewrite: an extensionless
+        # request (/about) is served from the matching .html file (about.html).
+        fs = super().translate_path(path)
+        if not os.path.exists(fs) and not path.endswith("/"):
+            root, ext = os.path.splitext(fs)
+            if not ext and os.path.isfile(fs + ".html"):
+                return fs + ".html"
+        return fs
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")

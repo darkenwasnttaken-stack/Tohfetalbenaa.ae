@@ -29,6 +29,33 @@ RedirectMatch 403 (?i)^/(config|lib|storage|vendor|\.git)(/|$)
   Require all denied
 </Files>
 
+# ---- Clean URLs: /about instead of /about.html --------------------------
+# 1. Send any direct *.html request to its extensionless URL (301, canonical).
+# 2. Serve the matching .html file for an extensionless request.
+# PHP endpoints, real files and real directories are left untouched.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # /index.html or /<dir>/index.html  ->  /  or  /<dir>/
+  RewriteCond %{THE_REQUEST} \s/+(([^?\s]+/)?)index\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # /<path>.html  ->  /<path>
+  RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # /<path>/  ->  /<path>   (drop a trailing slash on non-directories so that
+  # relative asset paths on the clean URLs always resolve the same way)
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+?)/$ /$1 [R=301,L]
+
+  # /<path>  ->  /<path>.html  (internal, only when the .html file exists)
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+?)/?$ /$1.html [L]
+</IfModule>
+
 # ---- Optional: force HTTPS + canonical host (uncomment after go-live) -----
 # <IfModule mod_rewrite.c>
 #   RewriteEngine On
