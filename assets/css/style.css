@@ -262,9 +262,13 @@ html[dir="rtl"] .btn:hover .icon-dir{transform:scaleX(-1) translateX(4px);}
   border-bottom:1px solid transparent;
 }
 .site-header.solid{
+  /* No backdrop-filter here any more: at 94% opacity almost nothing shows
+     through anyway, so the blur bought barely any visible softness for a
+     real, continuous cost -- backdrop-filter behind a fixed header has to
+     be resampled on every scroll frame for as long as it's on screen, and
+     it's one of the more common real causes of scroll jank on Chromium
+     (Brave included) on ordinary hardware. */
   background:rgba(11,26,51,.94);
-  -webkit-backdrop-filter:blur(10px);
-          backdrop-filter:blur(10px);
   padding-block:12px;
   border-color:rgba(255,255,255,.08);
 }
@@ -389,6 +393,13 @@ html[dir="rtl"] .mn-idx{font-family:var(--font-body);font-weight:700;font-style:
    (previously there was none at all). */
 .mobile-nav-links a[aria-current="page"]{color:var(--gold-light);border-color:var(--gold);}
 .mobile-nav-links a[aria-current="page"] .mn-idx{color:var(--gold-light);}
+/* The panel moves focus to "Home" the instant it opens (so keyboard users
+   land inside it, not just at the hamburger button) -- the site-wide
+   focus-visible outline is a boxy ring meant for small controls, and drawn
+   round a full-width row it read as a stray gold box sitting on "Home" no
+   matter which page you were actually on. Same visible focus signal, just
+   in the panel's own language: no outline, the row's own border goes gold. */
+.mobile-nav-links a:focus-visible{outline:none;border-color:var(--gold);}
 
 .mobile-panel-foot{position:relative;z-index:1;}
 .mp-contact{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
@@ -561,8 +572,11 @@ html[dir="rtl"] .hero-bg::after{
   margin:38px auto 0;width:fit-content;
 }
 .scroll-cue .stick{width:1px;height:34px;background:rgba(255,255,255,.3);position:relative;overflow:hidden;}
-.scroll-cue .stick::after{content:'';position:absolute;top:-100%;inset-inline:0;height:100%;background:var(--gold);animation:cue 1.8s infinite;}
-@keyframes cue{to{top:100%;}}
+/* transform, not top: this runs on an infinite loop on every page for as
+   long as the cue is on screen, and animating `top` recomputes layout every
+   frame where translateY is compositor-only -- same look, no ongoing cost. */
+.scroll-cue .stick::after{content:'';position:absolute;top:-100%;inset-inline:0;height:100%;background:var(--gold);animation:cue 1.8s infinite;will-change:transform;}
+@keyframes cue{to{transform:translateY(200%);}}
 @media(max-width:640px){.scroll-cue{display:none;}}
 
 /* Desktop hero: the text block is anchored to the TOP of the hero, a fixed

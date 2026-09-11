@@ -114,9 +114,17 @@
      down). Elsewhere it plays once and is left alone. */
   var reveals = document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window && reveals.length){
-    /* IN: add .in once the element is a little way into view. Grouped
-       siblings get a stagger; the stagger delay is dropped ~1s later so it
-       can't slow any later transition on the same element. */
+    /* IN: add .in once the element is a little way into view. Siblings that
+       are genuinely side-by-side (a grid/flex row) get a stagger so they
+       cascade in together -- but a layout like "Our Process" is a row on
+       desktop and a single stacked column on mobile, and the same idx-based
+       delay applied there made every card wait up to 300ms after it had
+       *already* scrolled into view on its own, which just read as lag with
+       nothing to cascade against. offsetTop (layout position, unaffected by
+       the reveal transform) tells the two apart: only stagger when this
+       element actually starts at the same top as the first sibling. The
+       delay is dropped ~1s later so it can't slow any later transition on
+       the same element. */
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
         if(!en.isIntersecting) return;
@@ -125,7 +133,8 @@
         if(parent){
           var sibs = parent.querySelectorAll(':scope > .reveal');
           var idx = Array.prototype.indexOf.call(sibs, el);
-          if(idx > 0 && sibs.length > 1){
+          var sameRow = idx > 0 && sibs.length > 1 && Math.abs(el.offsetTop - sibs[0].offsetTop) < 4;
+          if(sameRow){
             el.style.transitionDelay = (Math.min(idx, 4) * 75) + 'ms';
             setTimeout(function(node){ return function(){ node.style.transitionDelay = ''; }; }(el), 1000);
           }
