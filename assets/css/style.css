@@ -10,6 +10,14 @@
    file has downloaded and parsed — a serial round-trip on the critical path). */
 
 :root{
+  /* The palette below (deep navy sections, paper-light sections) is the
+     actual design, not a "light site" that needs a browser dark mode.
+     Several Android browsers (Samsung Internet, some Chrome/Brave builds)
+     auto-invert/recolour pages that don't explicitly declare a scheme --
+     "only light" is the standard opt-out and is what fixed reports of the
+     site's colours coming out wrong on those browsers. */
+  color-scheme: only light;
+
   /* Navy: a deeper, slightly bluer base with a genuine darkest tone, so the
      dark bands read with depth instead of a single flat fill. */
   --navy: #0a1a35;
@@ -714,6 +722,20 @@ html[dir="rtl"] .process-step .n{font-family:var(--font-body);font-weight:800;fo
 .process-step h3{margin-top:16px;font-family:var(--font-display);font-size:19px;text-transform:uppercase;}
 html[dir="rtl"] .process-step h3{font-weight:800;font-size:16px;}
 .process-step p{margin-top:10px;font-size:14px;color:var(--ink-soft);line-height:1.55;}
+/* The generic .reveal (36px rise + a slight scale, .7s) is tuned for a big
+   standalone block; on five small cards sharing hairline borders in a
+   tight grid it read heavy and out of step rather than smooth. Snappier,
+   shorter travel, no scale -- specificity bumped (3 classes) so it wins
+   over the generic .reveal rules regardless of source order. */
+html.js .process-step.reveal{
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity .38s var(--ease), transform .38s var(--ease);
+}
+html.js .process-step.reveal.in{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){
+  html.js .process-step.reveal{ opacity:1; transform:none; transition:none; }
+}
 
 /* ---------- CTA band ---------- */
 .cta-band{background:var(--navy-grad);color:#fff;padding:100px 0;text-align:center;}

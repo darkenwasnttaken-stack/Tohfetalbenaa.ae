@@ -187,7 +187,7 @@
         var img = box.firstElementChild;
         if(!img || img.tagName !== 'IMG') return;
         if(getComputedStyle(img).objectFit === 'contain') return;   /* leave letterboxed photos still */
-        var it = { box: box, img: img, py: 0, tpy: 0, sc: M_BASE, tsc: M_BASE };
+        var it = { box: box, img: img, py: 0, tpy: 0, sc: M_BASE, tsc: M_BASE, active: false };
         mItems.push(it);
         var row = box.closest('.svc-row, article');
         if(row){
@@ -196,24 +196,60 @@
         }
       });
       if(mItems.length){
-        (function mTick(){
-          var vh = window.innerHeight || 1, i;
-          /* read every rect first, then write every style — no interleaved
-             layout thrash */
+        /* This loop used to run forever, unconditionally, reading every
+           box's position every single frame for as long as the tab stayed
+           on a page with a media panel -- visible or scrolled miles away.
+           That's constant main-thread work for nothing, and it's the kind
+           of thing that reads as "laggy" once a browser has any extra
+           per-frame overhead of its own (content-blocking, a weaker CPU).
+           Now an IntersectionObserver marks which boxes are actually near
+           the viewport (generous margin, so the motion is already moving
+           by the time one scrolls into view); the rAF loop only touches
+           those, and stops completely once none are near or the tab is
+           hidden, restarting the moment one becomes relevant again. */
+        var mRunning = false;
+        var mTick = function(){
+          var vh = window.innerHeight || 1, i, anyActive = false;
           for(i = 0; i < mItems.length; i++){
-            var it = mItems[i], r = it.box.getBoundingClientRect();
+            var it = mItems[i];
+            if(!it.active) continue;
+            anyActive = true;
+            var r = it.box.getBoundingClientRect();
             if(r.bottom > -140 && r.top < vh + 140){
               it.tpy = ((r.top + r.height / 2 - vh / 2) / vh) * -M_RANGE;
             }
             it.py += (it.tpy - it.py) * 0.08;   /* trail the scroll */
             it.sc += (it.tsc - it.sc) * 0.11;   /* ease the hover zoom */
+            it.img.style.setProperty('--py', it.py.toFixed(2) + 'px');
+            it.img.style.setProperty('--sc', it.sc.toFixed(4));
           }
-          for(i = 0; i < mItems.length; i++){
-            mItems[i].img.style.setProperty('--py', mItems[i].py.toFixed(2) + 'px');
-            mItems[i].img.style.setProperty('--sc', mItems[i].sc.toFixed(4));
+          if(anyActive && !document.hidden){
+            requestAnimationFrame(mTick);
+          } else {
+            mRunning = false;
           }
-          requestAnimationFrame(mTick);
-        })();
+        };
+        var mKick = function(){
+          if(!mRunning && !document.hidden){
+            mRunning = true;
+            requestAnimationFrame(mTick);
+          }
+        };
+        if('IntersectionObserver' in window){
+          var mIO = new IntersectionObserver(function(es){
+            es.forEach(function(e){
+              for(var i = 0; i < mItems.length; i++){
+                if(mItems[i].box === e.target){ mItems[i].active = e.isIntersecting; break; }
+              }
+            });
+            mKick();
+          }, {rootMargin:'200px 0px 200px 0px'});
+          mItems.forEach(function(it){ mIO.observe(it.box); });
+        } else {
+          mItems.forEach(function(it){ it.active = true; });
+          mKick();
+        }
+        document.addEventListener('visibilitychange', function(){ if(!document.hidden) mKick(); });
       }
     }
   }
