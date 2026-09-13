@@ -1141,6 +1141,16 @@ body.home-snap{
   scroll-snap-type:y proximity;      /* propagates from <body> to the viewport */
   scroll-padding-top:0;
 }
+/* CSS scroll-snap already animates its own "settle into place" motion --
+   layering the page-wide scroll-behavior:smooth on top of that means two
+   competing scroll animations on the same scroll, which is exactly what
+   shows up as stutter/lag on phones when you reverse direction quickly
+   (e.g. scroll down into the footer, then straight back up). The footer
+   sits right past the last snap section with nothing to align it, so
+   that's the single most likely place to catch the two fighting. Turn
+   smooth-scroll off for the whole homepage and let scroll-snap alone
+   drive the motion; every other page is unaffected. */
+html:has(body.home-snap){ scroll-behavior:auto; }
 body.home-snap main > section{
   scroll-snap-align:start;
   min-height:100vh;                  /* fallback for old engines */
