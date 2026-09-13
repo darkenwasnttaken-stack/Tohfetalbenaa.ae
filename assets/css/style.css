@@ -475,11 +475,6 @@ html[dir="rtl"] .mn-idx{font-family:var(--font-body);font-weight:700;font-style:
 .hero-photo-wrap img{
   width:100%;height:100%;object-fit:cover;object-position:62% 32%;
   opacity:.68;transform:scale(1.08);
-  animation:heroDrift 32s ease-in-out infinite alternate;
-}
-@keyframes heroDrift{
-  0%{transform:scale(1.08) translate3d(0,0,0);}
-  100%{transform:scale(1.16) translate3d(-1.4%,-1.2%,0);}
 }
 .hero-bg::after{content:'';position:absolute;inset:0;
   background:
@@ -919,16 +914,22 @@ html[dir="rtl"] .footer-col h2{letter-spacing:0;}
 .page-hero.texture .brand-mark{
   position:absolute;top:50%;inset-inline-end:clamp(-30px,3vw,50px);transform:translateY(-50%) scale(.92);
   width:clamp(220px,30vw,440px);z-index:1;pointer-events:none;opacity:0;
-  filter:drop-shadow(0 0 50px rgba(185,146,79,.22));
+  /* static now -- see markGlow below for why */
+  filter:drop-shadow(0 0 52px rgba(185,146,79,.25));
   animation:markIn 1.6s cubic-bezier(.22,.68,0,1) forwards, markGlow 5.5s ease-in-out infinite 1.6s;
 }
 @keyframes markIn{
   0%{opacity:0;transform:translateY(-50%) scale(.9);}
   100%{opacity:.14;transform:translateY(-50%) scale(1);}
 }
+/* Opacity-only: this used to also animate the drop-shadow's blur radius
+   every cycle, forever, on every visit to About/Contact — a changing blur
+   forces a repaint each frame, unlike an opacity change, which is
+   compositor-only and effectively free. Same breathing pulse, none of the
+   always-on repaint cost. */
 @keyframes markGlow{
-  0%,100%{opacity:.11;filter:drop-shadow(0 0 40px rgba(185,146,79,.18));}
-  50%{opacity:.19;filter:drop-shadow(0 0 62px rgba(185,146,79,.3));}
+  0%,100%{opacity:.11;}
+  50%{opacity:.19;}
 }
 @media(max-width:760px){.page-hero.texture .brand-mark{display:none;}}
 @media(prefers-reduced-motion: reduce){
