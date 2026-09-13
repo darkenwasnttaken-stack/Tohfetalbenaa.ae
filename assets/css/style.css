@@ -1164,6 +1164,19 @@ body.home-snap main > section{
   padding-top:clamp(96px, 13vh, 140px);
   padding-bottom:clamp(48px, 8vh, 96px);
 }
+/* The last section (the closing CTA band) butts straight up against the
+   ordinary, non-snapped footer -- there's no section after it to snap
+   the boundary shut. Screen recording confirmed it: scrolling past that
+   point (in either direction) repeatedly re-triggers the snap and fights
+   the gesture -- the page visibly yo-yos between "CTA band" and "footer"
+   instead of just scrolling. Every browser's "proximity" is meant to be
+   gentle everywhere, but this exact edge (a snap point immediately
+   followed by unsnapped content) is the one situation several Chromium
+   builds mishandle, snapping far more aggressively than intended. Simplest
+   reliable fix: the last section just doesn't participate in snapping, so
+   there's nothing there to fight over. It keeps its full-screen sizing --
+   only the snap point itself is removed. */
+body.home-snap main > section:last-of-type{ scroll-snap-align:none; }
 
 /* 1 — Hero ---------------------------------------------------------- */
 body.home-snap .hero{
