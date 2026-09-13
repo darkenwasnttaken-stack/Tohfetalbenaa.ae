@@ -1141,6 +1141,17 @@ html[dir="rtl"] .field label{letter-spacing:0;}
 body.home-snap{
   scroll-snap-type:y proximity;      /* propagates from <body> to the viewport */
   scroll-padding-top:0;
+  /* The native "rubber-band" bounce a touch browser shows when you scroll
+     past the very top or bottom of the page is a second, separate motion
+     fighting for control of the same scroll -- on top of CSS scroll-snap's
+     own settle animation -- right at the two edges of the document (the
+     hero at the top, the footer at the bottom). Different Chromium builds
+     resolve that conflict differently, which is consistent with the exact
+     same page feeling fine in one browser and janky in another at those
+     edges specifically. Turning the bounce off removes that second
+     animation outright instead of trying to out-guess each browser's own
+     timing for it. */
+  overscroll-behavior-y:none;
 }
 /* CSS scroll-snap already animates its own "settle into place" motion --
    layering the page-wide scroll-behavior:smooth on top of that means two
